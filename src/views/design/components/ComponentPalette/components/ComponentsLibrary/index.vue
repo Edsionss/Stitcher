@@ -1,37 +1,47 @@
 <template>
   <div class="framework-panel">
     <div class="framework-panel__accordion">
-      <div v-for="framework in componentsArray" :key="framework.componentName" class="framework-panel__item">
-        <div class="framework-panel__header" @click="toggleFramework(framework.componentName)">
+      <div v-for="framework in frameworkLibrary" :key="framework.GroupName" class="framework-panel__item">
+        <div class="framework-panel__header" @click="toggleFramework(framework.GroupName)">
           <span class="framework-panel__label">
-            <i :class="framework.icon"></i>
-            {{ framework.componentName }}
+            <i :class="framework.Icon"></i>
+            {{ framework.GroupName }}
           </span>
           <i
             :class="[
               'framework-panel__arrow',
               'el-icon-arrow-down',
-              { 'framework-panel__arrow--collapsed': activeFrameworkName !== framework.componentName }
+              { 'framework-panel__arrow--collapsed': activeFrameworkName !== framework.FrameworkName }
             ]"></i>
         </div>
-        <div class="framework-panel__content" v-if="activeFrameworkName === framework.componentName">
-          <van-tabs color="#409EFF" v-model="activeTabs[framework.componentName]">
-            <van-tab v-for="group in framework.group" :title="group.label" :name="group.name" :key="group.name">
+        <div class="framework-panel__content" v-if="activeFrameworkName === framework.FrameworkName">
+          <van-tabs color="#409EFF" v-model="activeComponents">
+            <van-tab
+              v-for="(components, index) in framework.ComponentLibrary"
+              :title="components.componentsLabel"
+              :name="components.componentsType"
+              :key="components.componentsType + index">
               <div class="group-list">
-                <div class="group-list__item" v-for="children in group.group" :key="children.name">
-                  <div class="group-list__header" @click="foldItem(framework.componentName, children.name)">
-                    <div class="group-list__label">{{ children.label }}</div>
+                <div class="group-list__item" v-for="group in components.group" :key="group.name">
+                  <div class="group-list__header" @click="foldItem(framework.FrameworkName, group.groupName)">
+                    <div class="group-list__label">{{ group.groupLabel }}</div>
                     <i
                       :class="[
                         'group-list__icon',
                         'el-icon-arrow-down',
-                        { 'group-list__icon--collapsed': !isGroupOpen(framework.componentName, children.name) }
+                        {
+                          'group-list__icon--collapsed':
+                            !isGroupOpen(framework.FrameworkName, group.groupName) || false
+                        }
                       ]"></i>
                   </div>
                   <div
                     class="core-panel__item-content"
-                    v-show="isGroupOpen(framework.componentName, children.name)">
-                    <draggable
+                    v-show="isGroupOpen(framework.FrameworkName, children.name)">
+                    <div class="drag-zone__item" v-for="(item, index) in group.groupComponents" :key="item.id">
+                      {{ item.props.label }}
+                    </div>
+                    <!-- <draggable
                       :list="children.children"
                       :group="{ name: 'itxst', pull: 'clone', put: false }"
                       :force-fallback="true"
@@ -45,7 +55,7 @@
                           {{ item.props.label }}
                         </div>
                       </transition-group>
-                    </draggable>
+                    </draggable> -->
                   </div>
                 </div>
               </div>
@@ -59,6 +69,26 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { FrameworkLibrary } from '@/config'
+defineOptions({ name: 'ComponentsLibrary' })
+const frameworkLibrary = reactive(FrameworkLibrary),
+  activeFrameworkName = ref(''),
+  activeComponents = ref('base'),
+  groupShowStates = reactive({})
+const toggleFramework = frameworkName => {
+  //content
+  activeFrameworkName.value = activeFrameworkName.value === frameworkName ? '' : frameworkName
+}
+
+const foldItem = (frameworkName, groupName) => {
+  //content
+  groupShowStates[frameworkName + groupName] = !groupShowStates[frameworkName + groupName]
+}
+
+const isGroupOpen = (frameworkName, groupName) => {
+  //content
+  return groupShowStates[frameworkName + groupName]
+}
 </script>
 
 <style scoped>

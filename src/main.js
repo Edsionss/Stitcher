@@ -23,6 +23,10 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 //引入wotd...
 
+//引入vant
+import Vant from 'vant'
+import 'vant/lib/index.css'
+
 //引入主组件
 import App from './App.vue'
 
@@ -38,6 +42,9 @@ app.use(pinia)
 
 //挂载antd
 app.use(Antd)
+
+//挂载Vant
+app.use(Vant)
 
 //挂载element-plus
 app.use(ElementPlus, {

@@ -1,7 +1,9 @@
-import WorkspaceHeader from './WorkspaceHeader/index'
-import ComponentPalette from './ComponentPalette/index'
+import WorkspaceHeader from './WorkspaceHeader'
+import ComponentPalette from './ComponentPalette'
+import FrameworkLibrary from './ComponentPalette/components'
 export default {
   WorkspaceHeader,
-  ComponentPalette
+  ComponentPalette,
+  FrameworkLibrary
 }
-export { WorkspaceHeader, ComponentPalette }
+export { WorkspaceHeader, ComponentPalette, FrameworkLibrary }

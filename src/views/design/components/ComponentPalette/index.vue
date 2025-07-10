@@ -41,7 +41,7 @@
         </div>
         <div class="components-panel__main">
           <!-- 详情主体内容 -->
-          <component v-if="currentModule && currentModule.tag" :is="currentModule.tag"></component>
+          <component v-if="currentModule && currentModule.tag" :is="componentsMaps[currentModule.tag]"></component>
         </div>
       </div>
     </div>
@@ -49,9 +49,14 @@
 </template>
 
 <script setup>
+import ComponentsLibrary from './components/ComponentsLibrary/index.vue'
 import { ref, reactive, onMounted, watch, readonly } from 'vue'
 import { ComponentPalette } from '@config/index'
 import _ from 'lodash'
+const componentsMaps = {
+  ComponentsLibrary: ComponentsLibrary
+  // 如果有其他组件，也加在这里
+}
 const { Modules, DefaultModule } = ComponentPalette
 const Tools = readonly([{ name: 'close', tips: '关闭', icon: 'CloseBold' }])
 const currentModule = reactive(_.cloneDeep(Modules[DefaultModule])),

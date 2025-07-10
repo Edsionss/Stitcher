@@ -2,7 +2,7 @@ export default {
   Modules: {
     componentsPanel: {
       name: '组件',
-      tag: 'componentsPanel',
+      tag: 'ComponentsLibrary',
       icon: 'Guide',
       src: '',
       search: true
