@@ -1,18 +1,15 @@
 <template>
   <div class="framework-panel">
     <div class="framework-panel__accordion">
-      <div v-for="framework in frameworkLibrary" :key="framework.GroupName" class="framework-panel__item">
-        <div class="framework-panel__header" @click="toggleFramework(framework.GroupName)">
+      <div v-for="framework in frameworkLibrary" :key="framework.FrameworkName" class="framework-panel__item">
+        <div class="framework-panel__header" @click="toggleFramework(framework.FrameworkName)">
           <span class="framework-panel__label">
             <i :class="framework.Icon"></i>
-            {{ framework.GroupName }}
+            {{ framework.FrameworkName }}
           </span>
-          <i
-            :class="[
-              'framework-panel__arrow',
-              'el-icon-arrow-down',
-              { 'framework-panel__arrow--collapsed': activeFrameworkName !== framework.FrameworkName }
-            ]"></i>
+          <i :class="['framework-panel__arrow', 'el-icon']">
+            <component :is="computedFoldState(activeFrameworkName, framework.FrameworkName)"></component>
+          </i>
         </div>
         <div class="framework-panel__content" v-if="activeFrameworkName === framework.FrameworkName">
           <van-tabs color="#409EFF" v-model="activeComponents">
@@ -25,37 +22,26 @@
                 <div class="group-list__item" v-for="group in components.group" :key="group.name">
                   <div class="group-list__header" @click="foldItem(framework.FrameworkName, group.groupName)">
                     <div class="group-list__label">{{ group.groupLabel }}</div>
-                    <i
-                      :class="[
-                        'group-list__icon',
-                        'el-icon-arrow-down',
-                        {
-                          'group-list__icon--collapsed':
-                            !isGroupOpen(framework.FrameworkName, group.groupName) || false
-                        }
-                      ]"></i>
+                    <i :class="['group-list__icon', 'el-icon']">
+                      <component
+                        :is="
+                          computedFoldState(groupShowStates[framework.FrameworkName + group.groupName], true)
+                        "></component>
+                    </i>
                   </div>
                   <div
                     class="core-panel__item-content"
-                    v-show="isGroupOpen(framework.FrameworkName, children.name)">
-                    <div class="drag-zone__item" v-for="(item, index) in group.groupComponents" :key="item.id">
-                      {{ item.props.label }}
-                    </div>
-                    <!-- <draggable
-                      :list="children.children"
-                      :group="{ name: 'itxst', pull: 'clone', put: false }"
-                      :force-fallback="true"
-                      :animation="300"
-                      :sort="false"
-                      :clone="item => onClone(item, children, framework)"
-                      chosen-class="drag-zone__item--chosen"
-                      class="drag-zone">
+                    v-show="isGroupOpen(framework.FrameworkName, group.groupName)">
+                    <VueDraggable ref="el" v-model="group.groupComponents">
                       <transition-group tag="div" class="drag-zone__group">
-                        <div class="drag-zone__item" v-for="(item, index) in children.children" :key="item.id">
-                          {{ item.props.label }}
+                        <div
+                          class="drag-zone__item"
+                          v-for="(component, index) in group.groupComponents"
+                          :key="component.tag + index">
+                          {{ component.label }}
                         </div>
                       </transition-group>
-                    </draggable> -->
+                    </VueDraggable>
                   </div>
                 </div>
               </div>
@@ -68,13 +54,17 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { VueDraggable } from 'vue-draggable-plus'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { FrameworkLibrary } from '@/config'
 defineOptions({ name: 'ComponentsLibrary' })
 const frameworkLibrary = reactive(FrameworkLibrary),
   activeFrameworkName = ref(''),
   activeComponents = ref('base'),
   groupShowStates = reactive({})
+const computedFoldState = (activeFrameworkName, frameworkName) => {
+  return activeFrameworkName === frameworkName ? 'ArrowDownBold' : 'ArrowRightBold'
+}
 const toggleFramework = frameworkName => {
   //content
   activeFrameworkName.value = activeFrameworkName.value === frameworkName ? '' : frameworkName
@@ -143,11 +133,6 @@ const isGroupOpen = (frameworkName, groupName) => {
   transition: transform 0.3s;
 }
 
-/* Modifier: framework-panel__arrow--collapsed (箭头的折叠状态) */
-.framework-panel__arrow--collapsed {
-  transform: rotate(-90deg);
-}
-
 /* Element: framework-panel__content (框架项的内容区域) */
 .framework-panel__content {
   padding: 0 10px 10px 10px;
@@ -171,7 +156,7 @@ const isGroupOpen = (frameworkName, groupName) => {
   /* color: #606266; */
   font-weight: 500;
   cursor: pointer;
-  padding: 10px;
+  padding: 14px;
   display: flex;
   align-items: center;
 }

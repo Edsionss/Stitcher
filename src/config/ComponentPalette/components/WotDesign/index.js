@@ -1,11 +1,11 @@
 export default {
   GroupType: 'BASE',
-  GroupName: 'WotDesign',
+  FrameworkName: 'WotDesign',
   Icon: 'el-icon-mobile-phone',
   ComponentLibrary: [
     {
       componentsType: 'base',
-      componentsName: '基础组件',
+      componentsLabel: '基础组件',
       componentsIcon: 'el-icon-menu',
       group: [
         {
@@ -59,8 +59,8 @@ export default {
           ]
         },
         {
-          label: '布局',
-          name: 'layout',
+          groupLabel: '布局',
+          groupName: 'layout',
           groupComponents: [
             {
               label: '单元格',
@@ -77,8 +77,8 @@ export default {
           ]
         },
         {
-          label: '反馈',
-          name: 'feedback',
+          groupLabel: '反馈',
+          groupName: 'feedback',
           groupComponents: [
             {
               label: '弹出层',
@@ -99,8 +99,8 @@ export default {
           ]
         },
         {
-          label: '展示',
-          name: 'display',
+          groupLabel: '展示',
+          groupName: 'display',
           groupComponents: [
             {
               label: '按钮',
@@ -123,15 +123,15 @@ export default {
       ]
     },
     {
-      name: 'special',
-      label: '特色组件',
-      icon: 'el-icon-menu',
+      componentsType: 'special',
+      componentsLabel: '特色组件',
+      componentsIcon: 'el-icon-menu',
       group: []
     },
     {
-      name: 'custom',
-      label: '自定组件',
-      icon: 'el-icon-menu',
+      componentsType: 'custom',
+      componentsLabel: '自定组件',
+      componentsIcon: 'el-icon-menu',
       group: []
     }
   ]
