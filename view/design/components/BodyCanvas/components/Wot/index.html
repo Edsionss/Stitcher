@@ -1,4 +1,4 @@
-<component :is="config.component" @click="defaultClick(config)" :key="config.id" v-bind="config.props"
+<component :is="config.component" @click="defaultClick(config)" :key="config.id" v-bind="props" v-on="onEvents"
   :value="bindValue" @input="config.groupName === 'form'&& componentEmittedInput($event,config)">
   <template v-if="config.children">
     <slot></slot>

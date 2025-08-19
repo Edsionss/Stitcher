@@ -1,12 +1,9 @@
-// 文件: Transition.js
-
-// ... (Transition 类的定义和所有内部方法保持不变，这里省略)
-// ... (class Transition { ... static async create(...) ... } 这部分完全不用动)
 import utils from '@utils/index.js'
 class Transition {
   constructor(pageInfo) {
     const { modules, ...pageData } = pageInfo
     this.pageInfo = pageInfo
+    this.eventTypeDict = { 0: 'jump', 1: 'link', 2: 'clean' }
     this.componentMappers = {
       fnsrsbh: data => this.componentMappers.input(data),
       fnsrmc: data => this.componentMappers.input(data),
@@ -32,11 +29,13 @@ class Transition {
         const dateValue = this._getDateDefaultValue(oldProps).endValue
         result.props.paramsValue = dateValue
         result.props.defaultValue = new Date(dateValue)
+        result.props.DateRange = oldProps.range || '-'
         return result
       },
       select: data => {
         const { props, events, id } = data
-        const { title, name, required, placeholder, defaultValue, params, radio } = props
+        let { title, name, required, placeholder, defaultValue, params, radio } = props
+        required = required == 'true' ? true : false
         const newProps = {
           label: title,
           valueName: name,
@@ -51,7 +50,8 @@ class Transition {
           ],
           params
         }
-        return { id: id, tag: 'wd-select-picker', valueName: name, props: newProps, events: events }
+        const tag = 'wd-select-picker'
+        return { id: id, tag, component: tag, valueName: name, props: newProps, events: events }
       },
       button: data => {
         const { props, events, id } = data
@@ -60,9 +60,10 @@ class Transition {
           tag = 'wd-button'
         let click = function (item) {}
         if (title === '查询') {
+          newProps.parentStyle = { textAlign: 'right', padding: '15px 15px  10px 0px' }
           click = function (item) {
-            this.recursionUpdateForm(this.componentsList, 'popupVisible', !this.formData.popupVisible)
-            console.log('[Button] click', this.formData.popupVisible, this.$data)
+            this.recursionUpdateForm(this.componentsList, 'popupVisible', false) //关闭弹窗
+            this.queryDataView()
           }
         }
         return {
@@ -76,15 +77,22 @@ class Transition {
         }
       },
       table: data => {
-        const { props, id } = data
+        const { props, id, events } = data
         const { ...tableConfig } = props
         let newProps = {
           ...tableConfig,
           other: true,
           tag: 'table',
+          loading: true,
           pageProps: { total: 1000, current: 1, pageSize: 10, pageSizeOptions: [10, 20, 30, 40, 50] }
         }
-        return { id: id, tag: 'lay-table', component: 'lay-table', props: newProps }
+        return {
+          id: id,
+          tag: 'lay-table',
+          component: 'lay-table',
+          props: newProps,
+          events: this._transitionEvents(events)
+        }
       },
       echartsPie: data => {
         const { props } = data
@@ -93,10 +101,18 @@ class Transition {
             {
               ...props.series[0],
               radius: '50%',
+              label: {
+                show: true,
+                position: 'outside', // 标签显示在外部
+                // 格式化标签内容：显示名称、数值和百分比
+                // \n 表示换行
+                formatter: '{b}\n{c} \n({d}%)'
+              },
               itemStyle: {
-                borderRadius: 10,
-                borderColor: '#fff',
-                borderWidth: 2
+                color: function (params) {
+                  // 自定义颜色数组
+                  return blueGradientPalette[params.dataIndex % blueGradientPalette.length]
+                }
               }
             }
           ]
@@ -106,6 +122,12 @@ class Transition {
       echartsBarLine: data => {
         const { props } = data,
           otherOption = {
+            grid: {
+              left: '15%',
+              right: '5%',
+              bottom: '8%',
+              top: '15%'
+            },
             xAxis: props.xAxis,
             yAxis: props.yAxis,
             series: props.series.map(item => {
@@ -115,6 +137,17 @@ class Transition {
                   valueFormatter: function (value) {
                     return value + item.unit
                   }
+                },
+                label: {
+                  show: true, // 显示标签
+                  position: 'top', // 标签位置为柱状图顶部
+                  formatter: '{c}' // 显示原始数据值
+                },
+                itemStyle: {
+                  color: function (params) {
+                    // 自定义颜色数组
+                    return ['#4AA3F9', '#4EA6FF', '#4EB4FF', '#4ECAFF', '#4ED7FF'][params.dataIndex]
+                  }
                 }
               }
             })
@@ -122,9 +155,10 @@ class Transition {
         return this._createBaseEcharts(data, otherOption)
       }
     }
-    this.allComponents = this._flattenComponents(modules || [])
-    this.bindParamsDict = this._getBindParams(this.allComponents)
-    this.componentsConfig = this._generateComponentsConfig(this.componentMappers, this.allComponents)
+    this.allComponents = this._flattenComponents(modules || []) //获取所有组件的平铺
+    this.readyAllComponents = this._getReadyAllComponents(this.allComponents) //设置被连接的组件
+    this.bindParamsDict = this._getBindParams(this.readyAllComponents)
+    this.componentsConfig = this._generateComponentsConfig(this.componentMappers, this.readyAllComponents)
     this.defaultBindParams = this._getFormDefaultValue(
       this.componentsConfig.form[0].children || [],
       this.bindParamsDict
@@ -158,6 +192,9 @@ class Transition {
     }
     console.log('最终生成的组件配置:', this.StitcherData)
   }
+  _filterParentComponent(pid) {
+    return this.readyAllComponents.filter(item => item.id == pid)[0]
+  }
   static async create(pageId, layui) {
     try {
       await utils.loadResources([
@@ -177,6 +214,7 @@ class Transition {
           type: 'GET',
           url: '/api/dsjfx/report/' + pageId,
           dataType: 'json',
+          loading: false,
           success: function (res) {
             if (res && res.code === 0) {
               resolve(res.data)
@@ -212,42 +250,131 @@ class Transition {
   }
   _createBaseEcharts(data, otherOptions = {}) {
     const { props, id, type, events } = data,
+      parentCardConfig = this._filterParentComponent(data.parentId),
+      parentCardProps = parentCardConfig?.props || {},
+      subLeft = props.text?.length * 18 + 9 || 7,
+      title = { mainTitle: props.text || parentCardProps.title || '', subTitle: props.subtext || '' },
       baseOption = {
-        title: {
-          text: props.text || '',
-          subtext: props.subtext || '',
-          left: props.titleAlign || 'center'
+        title: [
+          {
+            // 2. 第一个对象：主标题，靠左定位
+            text: title.mainTitle,
+            left:
+              //  props.titleAlign ||
+              7, // 距离左侧2%
+            top: 7,
+            textStyle: {
+              color: '#333',
+              fontSize: 15,
+              fontWeight: '600'
+            }
+          },
+          {
+            // 3. 第二个对象：作为副标题，靠右定位
+            text: title.subTitle,
+            left: subLeft, // 距离右侧2%
+            top: 9, // 保持和主标题相同的 top 值，确保在同一行
+            textStyle: {
+              color: '#999',
+              fontSize: 14,
+              fontWeight: 'normal'
+            }
+          }
+        ],
+
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          },
+          formatter: function (params) {
+            var result = ''
+            params.forEach(function (item) {
+              if (item.seriesName && item.value !== undefined) {
+                result += `${item.seriesName}: ${item.value}<br/>`
+              }
+            })
+            return result
+          }
         },
-        // tooltip: {
-        //   trigger: 'item'
-        // },
         legend: {
-          orient: 'vertical',
-          left: 'left',
-          show: props.legend
+          orient: 'horizontal',
+          type: 'scroll',
+          left: 7,
+          right: 7,
+          top: '30',
+          show: props.legend,
+          selectedMode: 'multiple' // 多选模式
         }
       },
       option = {
         ...baseOption,
         ...otherOptions
       }
+    // const newEvents = []
+    // events.forEach(event => {
+    //   const {
+    //       moduleId,
+    //       fmbdx,
+    //       type,
+    //       trigger,
+    //       triggerType,
+    //       triggerObject,
+    //       componentName,
+    //       furl,
+    //       furlName,
+    //       eventType,
+    //       paramList
+    //     } = event,
+    //     triggerParams = {}
+    //   paramList.forEach(param => {
+    //     const { targetName, targetId, sourceName } = param,
+    //       from = sourceName.includes('-') ? sourceName.split('-')[1] : 'self',
+    //       name = from === 'self' ? sourceName : sourceName.split('-')[0]
+    //     triggerParams[targetName] = {
+    //       bindId: targetId,
+    //       source: {
+    //         from,
+    //         name
+    //       }
+    //     }
+    //   })
+    //   newEvents.push({
+    //     trigger,
+    //     triggerTargetId: fmbdx,
+    //     triggerParams,
+    //     eventType
+    //     // eventType: this.eventTypeDict[type]
+    //   })
+    // })
     let newProps = {
       ...props,
-      events,
       option,
       other: true,
       tag: 'lay-echarts',
       component: 'lay-echarts',
-      chantType: type
+      chantType: type,
+      loading: true,
+      title: title.mainTitle
     }
-    return { id: id, tag: 'lay-echarts', component: 'lay-echarts', props: newProps }
+
+    return {
+      id: id,
+      tag: 'lay-echarts',
+      component: 'lay-echarts',
+      props: newProps,
+      events: this._transitionEvents(events)
+    }
   }
   _flattenComponents(array) {
     let result = []
     const recursionFun = arr => {
       arr.forEach(item => {
-        const { children, ...node } = item
-        result.push(node)
+        const { children, ...node } = item,
+          { props } = node,
+          newProps = { ...props, init: props.init === 'true' ? true : false },
+          newNode = { ...node, props: newProps }
+        result.push(newNode)
         if (children && children.length) {
           recursionFun(children)
         }
@@ -255,6 +382,45 @@ class Transition {
     }
     recursionFun(array)
     return result
+  }
+  _transitionEvents(events) {
+    const newEvents = []
+    events.forEach(event => {
+      const {
+          moduleId,
+          fmbdx,
+          type,
+          trigger,
+          triggerType,
+          triggerObject,
+          componentName,
+          furl,
+          furlName,
+          eventType,
+          paramList
+        } = event,
+        triggerParams = {}
+      paramList.forEach(param => {
+        const { targetName, targetId, sourceName } = param,
+          from = sourceName.includes('-') ? sourceName.split('-')[1] : 'self',
+          name = from === 'self' ? sourceName : sourceName.split('-')[0]
+        triggerParams[targetName] = {
+          bindId: targetId,
+          source: {
+            from,
+            name
+          }
+        }
+      })
+      newEvents.push({
+        trigger,
+        triggerTargetId: fmbdx,
+        triggerParams,
+        eventType
+        // eventType: this.eventTypeDict[type]
+      })
+    })
+    return newEvents
   }
   _getDateDefaultValue(oldProps) {
     const now = new Date(),
@@ -308,51 +474,45 @@ class Transition {
       if (dict[componentType]) {
         let newComponentConfig = dict[componentType](item)
         newComponentConfig._DEFAULT_CONFIG_PROPS = item
-        if (componentType === 'table') {
-          if (!result.table[0]) {
-            result.table[0] = {
-              tag: 'wd-cell-group',
-              component: 'wd-cell-group',
-              framework: 'wot',
-              groupName: 'layout',
-              children: [],
-              props: { title: '数据表格', border: true, style: { marginTop: '20px' } }
+        newComponentConfig.isBeLink = item.isBeLink
+        const dataViewCard = ({ title = '', style = {}, border = true }) => {
+          return {
+            tag: 'wd-cell-group',
+            component: 'wd-cell-group',
+            framework: 'wot',
+            groupName: 'layout',
+            children: [],
+            props: {
+              // title: title || '卡片',
+              border: border,
+              style: { margin: '15px 8px 5px 8px', ...style }
             }
           }
-
+        }
+        const dataViewConfig = {
+          framework: 'layui',
+          groupName: 'dataView',
+          groupLabel: '数据展示'
+        }
+        if (componentType === 'table') {
+          if (!result.table[0]) {
+            result.table[0] = dataViewCard({ title: '数据视图' })
+          }
           result.table[0].children.push({
             ...newComponentConfig,
-            framework: 'layui',
-            groupName: 'dataView',
-            groupLabel: '数据展示'
+            ...dataViewConfig
           })
         } else if (componentType.includes('echarts')) {
           if (!result.echarts[0]) {
-            result.echarts[0] = {
-              tag: 'wd-cell-group',
-              component: 'wd-cell-group',
-              framework: 'wot',
-              groupName: 'layout',
-              children: [],
-              props: { title: '图表数据', border: true, style: { marginTop: '20px' } }
-            }
+            result.echarts[0] = dataViewCard({ title: '图表数据' })
           }
           result.echarts[0].children.push({
             ...newComponentConfig,
-            framework: 'layui',
-            groupName: 'dataView',
-            groupLabel: '数据展示'
+            ...dataViewConfig
           })
         } else {
           if (!result.form[0]) {
-            result.form[0] = {
-              tag: 'wd-cell-group',
-              component: 'wd-cell-group',
-              framework: 'wot',
-              groupName: 'layout',
-              children: [],
-              props: { title: '', border: true }
-            }
+            result.form[0] = dataViewCard({})
           }
           result.form[0].children.push({ ...newComponentConfig, framework: 'wot', groupName: 'form' })
         }
@@ -367,13 +527,17 @@ class Transition {
       children: [],
       props: {
         visible: false,
-        position: 'top',
+        position: 'bottom',
         round: true,
         label: '弹出层',
         tag: 'popup',
-        style: { height: '100%' }
+        style: { height: '50%', padding: '10px 5px' }
       },
-      events: {},
+      onEvents: {
+        'click-modal'() {
+          this.recursionUpdateForm(this.componentsList, 'popupVisible', false)
+        }
+      },
       slot: '',
       _DEFAULT_CONFIG_PROPS: { label: '弹出层', tag: 'popup' },
       id: 'KZNPH904',
@@ -446,6 +610,40 @@ class Transition {
       }
     })
     return defaultParams
+  }
+  _getReadyAllComponents(allComponentsList) {
+    // 1. 深度克隆，确保不修改原始数据
+    const resultComponentsList = _.cloneDeep(allComponentsList)
+
+    // 2. 创建一个从 id 到组件的映射，用于快速查找
+    // 这个操作的时间复杂度是 O(N)
+    const componentMap = new Map()
+    resultComponentsList.forEach(component => {
+      componentMap.set(component.id, component)
+    })
+
+    // 3. 遍历所有组件和事件，直接通过 Map 修改目标组件
+    // 这个操作的时间复杂度是 O(N * E)
+    allComponentsList.forEach(component => {
+      const events = component.events
+      if (events && events.length) {
+        events.forEach((event, index) => {
+          const eventTargetId = event.fmbdx,
+            selfId = event.moduleId,
+            // 4. 使用 Map 进行 O(1) 复杂度的快速查找
+            targetComponent = componentMap.get(eventTargetId),
+            selfComponent = componentMap.get(selfId)
+          selfComponent && (selfComponent.events[index].eventType = this.eventTypeDict[event.type])
+          // 5. 如果找到了目标组件，就修改它
+          if (targetComponent) {
+            targetComponent.isBeLink = true
+          }
+        })
+      }
+    })
+
+    // 6. 返回修改后的列表
+    return resultComponentsList
   }
 }
 

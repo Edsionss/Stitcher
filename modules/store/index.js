@@ -5,7 +5,9 @@ export default new Vuex.Store({
     componentAttr: {}, // 当前组件属性
     componentConfig: {}, // 当前组件配置
     componentsList: [], // 当前组件列表
-    designMode: ''
+    designMode: '',
+    vueHistoryLength: 0,
+    previewFormData: {}
   },
   mutations: {
     setComponentAttr(state, payload) {
@@ -19,6 +21,15 @@ export default new Vuex.Store({
     },
     setDesignMode(state, payload) {
       state.designMode = _.cloneDeep(payload)
+    },
+    pushVueHistoryLength(state) {
+      state.vueHistoryLength++
+    },
+    backVueHistoryLength(state) {
+      state.vueHistoryLength--
+    },
+    setPreviewFormData(state, payload) {
+      state.previewFormData = _.cloneDeep(payload)
     }
   },
   actions: {},

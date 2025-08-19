@@ -1,3 +1,13 @@
 .canvas-item__content {
   /* margin-bottom: 15px; */
 }
+
+.table_card__title,
+.card_title {
+  padding: 7px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.a-link {
+  color: #1e9fff;
+}

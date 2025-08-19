@@ -2,7 +2,7 @@ const layoutComponents = {
   card: {
     // 注意：容器组件必须包含 <slot></slot>
     template: `
-      <div class="layui-card">
+      <div class="layui-card" >
         <div class="layui-card-header">{{title||'卡片标题'}}</div>
         <div class="layui-card-body" style="min-height: 150px;">
         <div class="layui-children-content">
@@ -91,9 +91,15 @@ const layoutComponents = {
   },
   table: {
     template: `
-    <div style=""> 
-      <table class="layui-hide" :id="tableId" :lay-filter="tableId"></table>
-      <div :style="pageStyle" :class="pageId" :id="pageId" lay-filter="pageId"></div>
+    <div>
+      <div class="table_card__title" >{{config.props.title||'数据表格'}}</div>
+      <div style="" v-loading="config.props.loading && config.props.init"  
+      :element-loading-text="loadingSetting.text"
+      :element-loading-spinner="loadingSetting.spinner"
+      :element-loading-background="loadingSetting.background"> 
+        <table class="layui-hide" :id="tableId" :lay-filter="tableId"></table>
+        <div :style="pageStyle" :class="pageId" :id="pageId" lay-filter="pageId"></div>
+      </div>
     </div>
     `,
     props: ['config'],
@@ -119,8 +125,27 @@ const layoutComponents = {
           count: pageProps.total || 0, // 新的总数
           limit: pageProps.pageSize || 10, // 当前的每页条数
           curr: pageProps.current || 1, // 当前页码
-          layout: ['count', 'prev', 'page', 'next', 'limit', 'skip']
+          // layout: ['count', 'page', 'skip']
+          layout: ['count', 'skip']
         }
+      },
+      events() {
+        return this.config.events
+      },
+      colsData() {
+        const formData = this.$store.state.previewFormData
+        const colsList = this.config.props.cols
+        colsList.map(cols => {
+          cols.map(item => {
+            if (item.title.includes('${') && item.v.includes('${') && !item.field) {
+              // const valName = item.title.replace('${', '').replace('}', '')
+              const valName = item.m.match(/\$\{(.+?)\}/)[1]
+              item.title = formData[valName]
+              item.field = formData[valName]
+            }
+          })
+        })
+        return this.config.props.cols
       }
     },
     watch: {
@@ -133,14 +158,86 @@ const layoutComponents = {
         },
         deep: true
       }
+      //舍弃全屏loading
+      // 'config.props.loading': function (newVal) {
+      //   const state = newVal && this.config.props.init
+      //   this.loadingFn(state)
+      // }
     },
     data() {
       return {
         pageInstance: null, // 分页实例
-        tableInstance: null
+        tableInstance: null,
+        loading: null, // 用于控制加载状态
+        loadingSetting: {
+          text: '数据加载中...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(255 , 255, 255, 0.6)' // 设置背景颜色
+        },
+        cols: []
       }
     },
+    created() {
+      this.eventsProcess(this.events)
+    },
+    mounted() {
+      this.renderTable()
+      //舍弃全屏loading
+      // this.loadingFn(this.config.props.init)
+      this.$el.addEventListener('click', e => {
+        if (e.target.classList.contains('jump-page')) {
+          const dataset = e.target.dataset,
+            pageId = dataset.pageid,
+            val = dataset.val,
+            params = JSON.parse(dataset.params),
+            event = JSON.parse(dataset.event)
+          this.$bus.$emit('onPageEvent', {
+            pageId,
+            params,
+            val,
+            event,
+            config: this.config,
+            type: event.eventType
+          })
+        }
+      })
+    },
     methods: {
+      eventsProcess(events) {
+        const cols = this.config.props.cols
+        events.forEach(event => {
+          const { triggerParams, eventType, triggerTargetId } = event
+          for (const key in triggerParams) {
+            const { bindId, source } = triggerParams[key]
+            if (source.from === 'self') {
+              cols[0].map((col, index) => {
+                if (col.field === source.name) {
+                  // if (eventType == 'jump') {
+                  col.templet = function (d) {
+                    return `<a class="jump-page a-link" data-val="" data-event=${JSON.stringify(
+                      event
+                    )} data-pageId="${triggerTargetId}" data-params=${JSON.stringify(d)} data-val="${
+                      d[source.name]
+                    }" >
+                    ${d[source.name]}
+                    </a>`
+                    // col.templet = function (d) {
+                    //   return `<a class="a-link" data-trigger-id="${triggerTargetId}" onclick="menuTools.MenuItemClick('${triggerTargetId}','MobileCode/view/main/index.html#/previewNext?pageId=${triggerTargetId}')">
+                    // ${d[source.name]}
+                    // </a>`
+                    // col.templet = function (d) {
+                    //   return `<a class="a-link" data-trigger-id="${triggerTargetId}" data-page-url="${triggerTargetId}">
+                    //       ${d[source.name]}
+                    //     </a>`
+                  }
+                  // }
+                }
+              })
+            }
+          }
+        })
+      },
+      eventClick() {},
       renderTable() {
         this.$nextTick(() => {
           const props = _.cloneDeep(this.config.props),
@@ -150,7 +247,7 @@ const layoutComponents = {
           this.tableInstance = table.render({
             ...props,
             elem: '#' + tableId, // 绑定元素选择器
-            cols: props.cols || [
+            cols: this.colsData || [
               [
                 { type: 'checkbox', fixed: 'left' },
                 { field: 'id', fixed: 'left', width: 80, title: 'ID', sort: true, totalRow: '合计：' },
@@ -190,8 +287,8 @@ const layoutComponents = {
             done: (res, curr, count, origin) => {
               if (!origin) {
                 // 如果是第一次加载，触发自定义事件
-                this.$bus.$emit('tablePageChange', {
-                  obj: this.pageParams,
+                this.emitBus({
+                  pageProps: this.pageParams,
                   config: this.config
                 })
               }
@@ -214,7 +311,7 @@ const layoutComponents = {
             jump: (obj, first) => {
               // `jump` 回调会在初始化时执行一次（first为true）
               if (!first) {
-                this.$bus.$emit('tablePageChange', { obj, first, config: this.config })
+                this.emitBus({ pageProps: obj, first, config: this.config })
               }
             }
           })
@@ -223,25 +320,52 @@ const layoutComponents = {
         table.reloadData(tableId, {
           data: props.data || [] // 传入新的当前页数据
         })
+      },
+      emitBus(params) {
+        this.config.props.loading = true
+        this.$bus.$emit('tablePageChange', params)
+      },
+      //全屏loading
+      loadingFn(state = true) {
+        // if (!this.lading) return console.error('请先初始化Loading')
+        if (state) {
+          this.lading = this.$loading({
+            lock: true,
+            text: 'Loading',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
+        } else {
+          this.lading.close()
+          this.lading = null
+        }
       }
-    },
-    mounted() {
-      this.renderTable()
     }
   },
   echarts: {
     template: `
-    <div> 
-      <div :style="chartStyle" :id="chartsId" :lay-filter="chartsId" :ref="chartsId"></div>
+    <div style="border-bottom: 1px solid #eee;"> 
+      <div  v-if="!chartsInit" class="card_title">{{ chartsProps.title }}</div>
+      <div :style="chartStyle" :id="chartsId" :lay-filter="chartsId" :ref="chartsId" v-if="chartsInit"></div>
+      <div :style="chartStyle" v-else>
+        <el-empty :description="chartsNone"></el-empty>
+      </div>
     </div>
     `,
     props: ['config'],
     created() {
       // 初始化时如果有配置项，则触发获取数据事件
-      this.chartsProps.init && this.$bus.$emit('echartsGetData', this.config)
+      if (this.chartsInit) {
+        this.$bus.$emit('echartsGetData', this.config)
+      }
     },
     mounted() {
-      this.render()
+      this.chartsInit && this.render()
+    },
+    data() {
+      return {
+        echartsInstance: null // 用于存储 ECharts 实例
+      }
     },
     watch: {
       config: {
@@ -260,13 +384,25 @@ const layoutComponents = {
       },
       chartsId() {
         return this.config.id
+      },
+      chartsInit() {
+        return this.chartsProps.init
+      },
+      chartsNone() {
+        if (!this.chartsInit) {
+          return '默认不加载'
+        }
+      },
+      loadingFun() {
+        return this.chartsProps.loading ? 'showLoading' : 'hideLoading'
       }
     },
     methods: {
       render(notFirst) {
         this.$nextTick(() => {
-          const chartEl = this.$refs[this.chartsId],
-            oldInt = echarts.getInstanceByDom(chartEl)
+          const chartEl = this.$refs[this.chartsId]
+          if (!chartEl) return console.warn('ECharts 容器未找到，请检查配置的 id 是否正确')
+          const oldInt = echarts.getInstanceByDom(chartEl)
           // 销毁旧实例
           oldInt && oldInt.dispose()
           const myChart = echarts.init(chartEl),
@@ -275,34 +411,57 @@ const layoutComponents = {
                 ? this.createPieChartOption(this.chartsProps.option)
                 : this.createBarLineChartOption(this.chartsProps.option)
           option && myChart.setOption(option)
+          const events = this.config.events
+          if (events.length) {
+            events.forEach(event => {
+              myChart.on(event.trigger, params => {
+                this.$bus.$emit('onPageEvent', {
+                  event,
+                  echartsParams: params,
+                  config: this.config,
+                  type: event.eventType
+                })
+                // event.eventType == 'link' &&
+                //   this.$bus.$emit('echartsEvent', { event, echartsParams: params, config: this.config })
+              })
+            })
+          }
+          this.echartsInstance = myChart
+          this.echartsInstance[this.loadingFun]()
         })
       },
-      createBarLineChartOption() {
-        return {
-          xAxis: {
-            type: 'category',
-            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-          },
-          yAxis: {
-            type: 'value'
-          },
-          series: [
-            {
-              data: [120, 200, 150, 80, 70, 110, 130],
-              type: 'bar'
-            }
-          ]
-        }
+      createBarLineChartOption(option) {
+        if (!option) return false
+        const { data, series, ...oldOption } = option || {},
+          dataset = { source: this.conversionDataToDataSet(data) },
+          resultOption = {
+            ...oldOption,
+            dataset,
+            series
+          }
+        return resultOption
       },
       createPieChartOption(option) {
         if (!option) return false
-        const { data, series, ...oldOption } = option || {}
-        const newSeries = [{ ..._.cloneDeep(series[0]), data }]
-        const resultOption = {
-          ...oldOption,
-          series: newSeries
-        }
+        const { data, series, ...oldOption } = option || {},
+          newSeries = [{ ..._.cloneDeep(series[0]), data }],
+          resultOption = {
+            ...oldOption,
+            series: newSeries
+          }
         return resultOption
+      },
+      conversionDataToDataSet(data) {
+        if (!data || !Array.isArray(data) || !data.length) return []
+        const legend = ['product'],
+          series = []
+        let result = []
+        data.forEach(item => {
+          legend.push(item.legend)
+          series.push([String(item.xaxis), item.yaxis])
+        })
+        result = [[...new Set(legend)], ...series]
+        return result
       }
     }
   }
