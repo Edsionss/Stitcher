@@ -9,12 +9,24 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.22"
+    "vue": "^3.5.22",
+    "@element-plus/icons-vue": "^2.3.1",
+    "@tailwindcss/vite": "^4.1.11",
+    "ant-design-vue": "^4.2.6",
+    "element-plus": "^2.10.2",
+    "lodash": "^4.17.21",
+    "pinia": "^3.0.3",
+    "tailwindcss": "^4.1.11",
+    "vant": "^4.9.20",
+    "vue-draggable-plus": "^0.6.0",
+    "vue-router": "^4.5.1",
+    "wot-design-uni": "^1.9.1"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",
+    "sass": "^1.89.2",
     "typescript": "~5.9.3",
     "vite": "npm:rolldown-vite@7.1.14",
     "vue-tsc": "^3.1.0"
