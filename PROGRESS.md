@@ -1,0 +1,227 @@
+# Stitcher Designer - 开发进度报告
+
+## 概述
+
+Stitcher Designer 是一个基于 Vue3 的低代码平台设计器，支持拖拽式组件编辑、多设备响应式设计和主题系统。
+
+## 当前版本
+
+**v0.1.0** - 基础架构完成版本
+
+## 已完成功能
+
+### ✅ 阶段一：项目初始化与基础设施
+
+- [x] 环境配置
+  - Vue 3 + TypeScript + Vite
+  - Tailwind CSS 配置
+  - Pinia 状态管理
+  - VueDraggablePlus 拖拽库
+
+- [x] 项目结构优化
+  - 组件化目录结构
+  - 类型定义管理
+  - 配置文件组织
+
+- [x] TypeScript 类型定义
+  - `src/types/component.ts` - 组件类型定义
+  - `src/types/design.ts` - 设计器状态类型
+  - `src/types/theme.ts` - 主题系统类型
+  - `src/types/device.ts` - 设备管理类型
+  - `src/types/draggable.ts` - 拖拽系统类型
+
+- [x] 工具库配置
+  - 拖拽配置 (`src/config/drag.config.ts`)
+  - 组件库配置 (`src/config/components.config.ts`)
+  - 设备配置 (`src/config/device.config.ts`)
+
+### ✅ 阶段二：状态管理系统
+
+- [x] 设计器状态管理 (`src/stores/design.ts`)
+  - 组件树管理
+  - 选区状态
+  - 历史记录（撤销/重做）
+  - 拖拽状态
+
+- [x] 设备管理 (`src/stores/device.ts`)
+  - 设备预设（桌面/平板/手机）
+  - 缩放控制
+  - 响应式断点
+  - 模拟器状态
+
+- [x] 主题系统 (`src/stores/theme.ts`)
+  - 浅色/深色主题
+  - 自定义主题
+  - CSS 变量管理
+  - 系统主题检测
+
+### ✅ 阶段三：拖拽系统实现
+
+- [x] 组件库面板 (`src/components/design/Sidebar/ComponentLibrary.vue`)
+  - 按分类展示组件
+  - 拖拽支持
+  - 组件预览
+
+- [x] 画布容器 (`src/components/design/Canvas/Canvas.vue`)
+  - 画布工具栏（缩放/网格）
+  - 嵌套拖拽支持
+  - 多选功能
+  - 组件操作（复制/删除）
+
+- [x] 属性编辑器 (`src/components/design/PropertyPanel/PropertyPanel.vue`)
+  - 基础属性编辑
+  - 样式属性编辑
+  - 事件处理配置
+  - 多组件批量编辑
+
+- [x] 主设计器 (`src/components/DesignEditor.vue`)
+  - 完整布局
+  - 工具栏
+  - 状态栏
+  - 集成所有模块
+
+## 核心特性
+
+### 🎯 已实现
+
+1. **拖拽系统**
+   - 基于 VueDraggablePlus
+   - 支持嵌套拖拽
+   - 智能占位符
+   - 拖拽预览效果
+
+2. **选区系统**
+   - 单选/多选支持
+   - Shift 范围选择
+   - Ctrl 精确选择
+   - 可视化选区指示
+
+3. **属性编辑**
+   - 动态属性表单
+   - 实时预览
+   - 类型安全编辑
+   - 历史记录追踪
+
+4. **主题系统**
+   - 浅色/深色模式
+   - CSS 变量驱动
+   - 自定义主题
+   - 系统主题同步
+
+5. **设备支持**
+   - 多设备预设
+   - 缩放控制
+   - 响应式断点
+
+## 技术栈
+
+- **前端框架**: Vue 3 (Composition API)
+- **开发语言**: TypeScript
+- **构建工具**: Vite
+- **状态管理**: Pinia
+- **样式方案**: Tailwind CSS
+- **拖拽库**: VueDraggablePlus
+- **UI 库**: shadcn-vue (主)
+- **图标库**: Material Symbols
+
+## 项目结构
+
+```
+src/
+├── components/          # 组件
+│   ├── design/         # 设计器相关组件
+│   │   ├── Sidebar/    # 侧边栏
+│   │   ├── Canvas/     # 画布
+│   │   └── PropertyPanel/ # 属性面板
+│   └── DesignEditor.vue # 主设计器
+├── stores/             # 状态管理
+│   ├── design.ts      # 设计器状态
+│   ├── device.ts      # 设备管理
+│   └── theme.ts       # 主题管理
+├── types/              # 类型定义
+├── config/            # 配置文件
+└── styles/            # 样式文件
+```
+
+## 待开发功能
+
+### 🔄 阶段四及以后
+
+- [ ] **组件库系统**
+  - shadcn-vue 组件适配
+  - Element Plus 组件适配
+  - Ant Design Vue 组件适配
+  - 组件市场
+
+- [ ] **多设备响应式实现**
+  - 响应式编辑
+  - 断点管理
+  - 设备预览切换
+
+- [ ] **高级功能**
+  - 预览模式
+  - 代码导出
+  - 组件嵌套层级管理
+  - 快捷键支持
+
+- [ ] **测试与优化**
+  - 单元测试
+  - E2E 测试
+  - 性能优化
+  - 兼容性测试
+
+## 使用说明
+
+### 开发环境启动
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+```
+
+### 基础用法
+
+1. **从组件库拖拽组件到画布**
+2. **点击画布中的组件进行选择**
+3. **在右侧属性面板编辑组件属性**
+4. **使用顶部工具栏进行撤销/重做**
+5. **点击主题按钮切换浅色/深色模式**
+
+## 已知问题
+
+- 暂未发现阻塞性问题
+
+## 下一步计划
+
+1. 完善组件库系统，集成 shadcn-vue
+2. 实现设备预览切换功能
+3. 添加组件实际渲染器
+4. 实现样式编辑面板
+5. 添加更多基础组件
+
+## 更新日志
+
+### v0.1.0 (2025-11-07)
+
+**新增**
+- 完成基础架构搭建
+- 实现拖拽系统
+- 完成属性编辑器
+- 实现主题系统
+- 完成设备管理系统
+
+**改进**
+- 优化项目结构
+- 完善 TypeScript 类型定义
+- 改进代码组织方式
+
+---
+
+**开发团队**: Claude Code
+**最后更新**: 2025-11-07

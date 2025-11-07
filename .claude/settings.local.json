@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(node:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm add -D @types/node)",
+      "Bash(npm run type-check)",
+      "Bash(tsc:*)"
     ],
     "deny": [],
     "ask": []
