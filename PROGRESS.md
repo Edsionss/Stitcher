@@ -6,7 +6,47 @@ Stitcher Designer 是一个基于 Vue3 的低代码平台设计器，支持拖�
 
 ## 当前版本
 
-**v0.1.0** - 基础架构完成版本
+**v0.2.0** - 拖拽系统完整版
+
+## 已修复问题
+
+### 🐛 v0.2.0 版本修复
+
+- **ComponentLibrary.vue**
+  - 修复无效的CSS语法（`dark:background`等）
+  - 使用`:global(.dark)`选择器替代深色模式样式
+
+- **PropertyPanel.vue**
+  - 修复事件处理函数的类型错误
+  - 为所有事件处理添加类型断言（`as HTMLInputElement`等）
+  - 修复`selectedIds.value[0]`可能为undefined的问题
+
+- **Canvas.vue**
+  - 修复`selectComponent`函数中多选逻辑的类型错误
+  - 添加空值检查和类型保护
+  - 修复Shift多选功能
+
+- **DesignEditor.vue**
+  - 修复计算属性访问路径（`designStore.canUndo`而非`designStore.history.canUndo`）
+
+- **design.ts**
+  - 添加`updateComponentProps`、`updateComponentStyle`、`updateComponentEvents`方法
+  - 修复`loadProject`作用域问题
+  - 完善项目管理功能
+
+- **device.ts**
+  - 修复`initDevices`函数可能返回undefined的问题
+  - 添加`initDevice`方法
+
+- **theme.ts**
+  - 修复`generateTheme`函数的空值检查
+  - 修复`hexToRgb`函数中`result[i]`可能为undefined的问题
+  - 修复`rgbToHex`函数参数类型
+
+- **types/component.ts**
+  - 修复`ComponentRenderer`接口中的`VNode`类型未定义问题
+
+✅ **TypeScript类型检查通过 - 0错误**
 
 ## 已完成功能
 
@@ -145,18 +185,22 @@ src/
 
 ## 待开发功能
 
-### 🔄 阶段四及以后
+### 🔄 阶段五及以后
 
-- [ ] **组件库系统**
-  - shadcn-vue 组件适配
-  - Element Plus 组件适配
-  - Ant Design Vue 组件适配
-  - 组件市场
+#### 🚧 当前进行中
+
+- [x] **组件库系统** (基础架构已完成)
+  - ✅ shadcn-vue 组件适配框架
+  - 🔄 Element Plus 组件适配
+  - 🔄 Ant Design Vue 组件适配
+  - [ ] 组件市场
 
 - [ ] **多设备响应式实现**
   - 响应式编辑
   - 断点管理
   - 设备预览切换
+
+#### 📋 计划中
 
 - [ ] **高级功能**
   - 预览模式
@@ -169,6 +213,13 @@ src/
   - E2E 测试
   - 性能优化
   - 兼容性测试
+
+### ✅ 已完成阶段
+
+- [x] **阶段一：项目初始化与基础设施** (v0.1.0)
+- [x] **阶段二：状态管理系统** (v0.1.5)
+- [x] **阶段三：拖拽系统实现** (v0.2.0)
+- [x] **阶段四：属性编辑器** (v0.2.0)
 
 ## 使用说明
 
