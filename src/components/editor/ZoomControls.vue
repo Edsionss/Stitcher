@@ -86,7 +86,7 @@ const fitToScreen = () => {
 <style scoped>
 .zoom-controls {
   position: absolute;
-  bottom: 1rem;
+  bottom: 2.5rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;

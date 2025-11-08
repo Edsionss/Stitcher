@@ -2,7 +2,6 @@
   <div
     ref="canvasContainerRef"
     class="canvas-container relative h-full w-full overflow-auto bg-background-light dark:bg-background-dark"
-    @wheel="handleWheel"
     @mousedown="handleMouseDown"
   >
     <!-- 网格控制面板 -->
@@ -17,18 +16,20 @@
       @fit-to-screen="fitToScreen"
     />
 
-    <div
-      class="canvas-wrapper relative"
-      :style="{
-        width: canvasWidth + 'px',
-        height: canvasHeight + 'px',
-        transform: `scale(${zoomLevel})`,
-        transformOrigin: '0 0'
-      }"
-      @mousemove="handleMouseMove"
-      @mouseup="handleMouseUp"
-      @mouseleave="handleMouseUp"
-    >
+    <!-- 画布居中容器 -->
+    <div class="flex items-center justify-center h-full w-full">
+      <div
+        class="canvas-wrapper relative"
+        :style="{
+          width: canvasWidth + 'px',
+          height: canvasHeight + 'px',
+          transform: `scale(${zoomLevel})`,
+          transformOrigin: '0 0'
+        }"
+        @mousemove="handleMouseMove"
+        @mouseup="handleMouseUp"
+        @mouseleave="handleMouseUp"
+      >
       <!-- 网格背景 -->
       <div
         v-if="showGrid"
@@ -93,6 +94,7 @@
             }"
           ></div>
         </div>
+      </div>
       </div>
     </div>
   </div>
@@ -164,16 +166,6 @@ const gridPattern = computed(() => {
 })
 
 // 方法
-const handleWheel = (e: WheelEvent) => {
-  e.preventDefault()
-
-  const delta = e.deltaY > 0 ? -0.1 : 0.1
-  const newZoom = Math.max(0.25, Math.min(2, zoomLevel.value + delta))
-  zoomLevel.value = newZoom
-
-  emit('zoom-changed', newZoom)
-}
-
 const handleMouseDown = (e: MouseEvent) => {
   // 只在按住空格键时平移
   if (e.button === 0 && e.ctrlKey) {
