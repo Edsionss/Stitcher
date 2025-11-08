@@ -7,7 +7,7 @@
 ### 1. [技术架构文档](技术架构文档.md)
 - **内容**: 系统整体架构、技术选型、模块划分、数据模型
 - **页数**: 约25页
-- **重点**: Vue3 + TypeScript + Pinia架构设计，双UI库支持方案
+- **重点**: Vue3 + TypeScript + Pinia架构设计，三UI库支持方案
 
 ### 2. [功能模块规划](功能模块规划.md)
 - **内容**: 详细功能规划、核心流程设计、数据流设计
@@ -47,7 +47,7 @@
 
 ### 核心功能
 - ✅ 拖拽式组件设计
-- ✅ 双UI库支持 (Element Plus + Ant Design)
+- ✅ 三UI库支持 (Element Plus + Ant Design + Naive UI)
 - ✅ 响应式预览 (桌面/平板/手机)
 - ✅ 代码生成与导出
 - ✅ 实时预览
@@ -107,9 +107,11 @@
 | 构建工具 | Vite | 7.1.11 |
 | 状态管理 | Pinia | 3.0.3 |
 | 路由 | Vue Router | 4.6.3 |
-| UI库 | Element Plus | 最新 |
-| UI库 | Ant Design Vue | 最新 |
-| 拖拽库 | vuedraggable | 4.x |
+| 编辑器UI库 | shadcn-vue | 最新 |
+| 生成代码UI库 | Element Plus | 最新 |
+| 生成代码UI库 | Ant Design Vue | 最新 |
+| 生成代码UI库 | Naive UI | 最新 |
+| 拖拽库 | vue-draggable-plus | 最新 |
 | 代码编辑器 | Monaco Editor | 最新 |
 
 ## 🎯 关键指标
@@ -122,7 +124,7 @@
 
 ### 功能指标
 - 支持组件数: 50+
-- 支持UI库: 2个 (可扩展)
+- 支持UI库: 3个 (可扩展)
 - 响应式断点: 3个
 - 历史记录: 100步
 
