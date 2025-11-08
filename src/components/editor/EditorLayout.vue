@@ -59,10 +59,71 @@
             <span class="material-symbols-outlined mr-1.5 text-base">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
             <span>{{ isDark ? '明亮' : '暗黑' }}</span>
           </button>
-          <button class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
-            <span class="material-symbols-outlined mr-1.5 text-base">save</span>
-            <span>Save</span>
-          </button>
+
+          <!-- 项目操作下拉菜单 -->
+          <div class="relative" ref="projectMenuRef">
+            <button
+              @click="toggleProjectMenu"
+              class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+            >
+              <span class="material-symbols-outlined mr-1.5 text-base">folder</span>
+              <span>项目</span>
+            </button>
+
+            <!-- 下拉菜单 -->
+            <div
+              v-show="showProjectMenu"
+              class="absolute right-0 top-full mt-1 w-48 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-1 shadow-lg z-50"
+            >
+              <button
+                @click="handleSave"
+                class="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
+                <span class="material-symbols-outlined text-base">save</span>
+                <span>保存到本地</span>
+              </button>
+              <button
+                @click="handleExport"
+                :disabled="persistence.isExporting.value"
+                class="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-50"
+              >
+                <span class="material-symbols-outlined text-base">download</span>
+                <span>{{ persistence.isExporting.value ? '导出中...' : '导出JSON' }}</span>
+              </button>
+              <button
+                @click="triggerImport"
+                class="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
+                <span class="material-symbols-outlined text-base">upload</span>
+                <span>导入JSON</span>
+              </button>
+              <hr class="my-1 border-slate-200 dark:border-slate-700" />
+              <button
+                @click="handleLoad"
+                class="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
+                <span class="material-symbols-outlined text-base">refresh</span>
+                <span>从本地加载</span>
+              </button>
+              <button
+                @click="handleClear"
+                class="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
+                <span class="material-symbols-outlined text-base">clear_all</span>
+                <span>清空数据</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 隐藏的文件输入 -->
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept=".json"
+            @change="handleImport"
+            class="hidden"
+          />
+
           <button class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
             <span class="material-symbols-outlined mr-1.5 text-base">visibility</span>
             <span>Preview</span>
@@ -211,14 +272,22 @@ import { ref, onMounted } from 'vue'
 import { useCanvasStore } from '@/stores/canvas'
 import { usePropertyStore } from '@/stores/property'
 import { useHistoryStore } from '@/stores/history'
+import { useProjectPersistence } from '@/composables/useProjectPersistence'
+import { useEventSystem, useAutoStateListener } from '@/composables/useEventSystem'
 import ComponentPanel from './ComponentPanel.vue'
 
 const canvasStore = useCanvasStore()
 const propertyStore = usePropertyStore()
 const historyStore = useHistoryStore()
+const persistence = useProjectPersistence()
 
 // 主题状态
 const isDark = ref(false)
+
+// 下拉菜单状态
+const showProjectMenu = ref(false)
+const projectMenuRef = ref<HTMLElement | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 
 // 设备类型
 const devices = [
@@ -287,6 +356,20 @@ onMounted(() => {
   } else {
     html.classList.remove('dark')
   }
+
+  // 初始化状态监听器
+  const { getSnapshot } = useAutoStateListener()
+
+  // 示例：监听画布缩放变化
+  const { on } = useEventSystem()
+  on('canvas:zoom:changed', (zoom) => {
+    console.log('Canvas zoom changed to:', zoom)
+  })
+
+  // 示例：监听项目更新
+  on('project:updated', (project) => {
+    console.log('Project updated:', project?.name)
+  })
 })
 
 // 菜单项切换方法
@@ -316,5 +399,57 @@ const handleUndo = () => {
 
 const handleRedo = () => {
   historyStore.redo()
+}
+
+// 项目菜单方法
+const toggleProjectMenu = () => {
+  showProjectMenu.value = !showProjectMenu.value
+}
+
+const handleSave = () => {
+  const result = persistence.saveToLocal()
+  if (result.success) {
+    showProjectMenu.value = false
+    // 可以添加成功提示
+  }
+}
+
+const handleExport = async () => {
+  const result = await persistence.exportProject()
+  if (result.success) {
+    showProjectMenu.value = false
+  }
+}
+
+const handleImport = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    const result = await persistence.importProject(file)
+    if (result.success) {
+      showProjectMenu.value = false
+    }
+  }
+  // 清空输入
+  target.value = ''
+}
+
+const triggerImport = () => {
+  fileInputRef.value?.click()
+  showProjectMenu.value = false
+}
+
+const handleLoad = () => {
+  const result = persistence.loadFromLocal()
+  if (result.success) {
+    showProjectMenu.value = false
+  }
+}
+
+const handleClear = () => {
+  if (confirm('确定要清空所有数据吗？此操作不可撤销。')) {
+    persistence.clearAll()
+    showProjectMenu.value = false
+  }
 }
 </script>
