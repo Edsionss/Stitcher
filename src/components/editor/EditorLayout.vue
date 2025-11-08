@@ -81,15 +81,6 @@
       <aside class="flex h-full w-64 flex-shrink-0 flex-col justify-between border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B]">
         <!-- 顶部内容 -->
         <div class="flex flex-col gap-4 p-4">
-          <!-- Workspace -->
-          <div class="flex items-center gap-3">
-            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gradient-to-br from-blue-400 to-purple-500"></div>
-            <div class="flex flex-col">
-              <h1 class="text-slate-900 dark:text-white text-base font-medium leading-normal">Workspace</h1>
-              <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">My New App</p>
-            </div>
-          </div>
-
           <!-- 导航菜单 -->
           <nav class="flex flex-col gap-2">
             <template v-for="item in menuItems" :key="item.key">
