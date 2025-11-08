@@ -6,7 +6,11 @@
       "Bash(pnpm add:*)",
       "Bash(pnpm add -D @types/node)",
       "Bash(npm run type-check)",
-      "Bash(tsc:*)"
+      "Bash(tsc:*)",
+      "Bash(pnpm run type-check)",
+      "Bash(src/components/CodeExportModal.vue:*)",
+      "Bash(pnpm build:*)",
+      "Bash(npx vite build:*)"
     ],
     "deny": [],
     "ask": []

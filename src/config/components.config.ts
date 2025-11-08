@@ -50,21 +50,22 @@ export const COMPONENT_CONFIG = {
   },
 
   // shadcn-vue 组件映射
-  SHADCN_COMPONENTS: {
-    button: {
-      type: 'button',
+  SHADCN: {
+    Button: {
+      type: 'Button',
       name: 'Button',
       category: 'basic',
       icon: 'mouse-pointer',
-      description: '触发操作',
+      description: '触发操作的按钮',
       defaultProps: {
         variant: 'default',
         size: 'default',
+        text: '按钮',
         disabled: false,
       },
     },
-    input: {
-      type: 'input',
+    Input: {
+      type: 'Input',
       name: 'Input',
       category: 'form',
       icon: 'type',
@@ -75,13 +76,112 @@ export const COMPONENT_CONFIG = {
         disabled: false,
       },
     },
-    card: {
-      type: 'card',
+    Text: {
+      type: 'Text',
+      name: 'Text',
+      category: 'basic',
+      icon: 'text-fields',
+      description: '文本组件',
+      defaultProps: {
+        tag: 'p',
+        text: '这是一段文本',
+        bold: false,
+        italic: false,
+        size: 'base',
+        color: 'default',
+      },
+    },
+    Container: {
+      type: 'Container',
+      name: 'Container',
+      category: 'layout',
+      icon: 'crop-din',
+      description: '容器组件',
+      defaultProps: {
+        tag: 'div',
+        padding: 'md',
+      },
+    },
+    Row: {
+      type: 'Row',
+      name: 'Row',
+      category: 'layout',
+      icon: 'view-week',
+      description: '行布局',
+      defaultProps: {
+        gap: 'md',
+      },
+    },
+    Column: {
+      type: 'Column',
+      name: 'Column',
+      category: 'layout',
+      icon: 'view-column',
+      description: '列布局',
+      defaultProps: {
+        span: 1,
+      },
+    },
+    Spacer: {
+      type: 'Spacer',
+      name: 'Spacer',
+      category: 'layout',
+      icon: 'height',
+      description: '间距组件',
+      defaultProps: {
+        size: 20,
+      },
+    },
+    Divider: {
+      type: 'Divider',
+      name: 'Divider',
+      category: 'layout',
+      icon: 'horizontal-rule',
+      description: '分隔线',
+      defaultProps: {
+        vertical: false,
+        dashed: false,
+        text: '',
+      },
+    },
+    Link: {
+      type: 'Link',
+      name: 'Link',
+      category: 'basic',
+      icon: 'link',
+      description: '链接组件',
+      defaultProps: {
+        text: '链接文本',
+        href: '#',
+        target: '_self',
+        variant: 'default',
+      },
+    },
+    Image: {
+      type: 'Image',
+      name: 'Image',
+      category: 'basic',
+      icon: 'image',
+      description: '图片组件',
+      defaultProps: {
+        src: '',
+        alt: '',
+        width: 200,
+        height: 150,
+        rounded: false,
+        circle: false,
+        shadow: false,
+      },
+    },
+    Card: {
+      type: 'Card',
       name: 'Card',
       category: 'layout',
-      icon: 'square',
+      icon: 'credit-card',
       description: '卡片容器',
       defaultProps: {
+        title: '卡片标题',
+        content: '卡片内容',
         padding: 'md',
         shadow: 'sm',
       },
@@ -89,9 +189,9 @@ export const COMPONENT_CONFIG = {
   },
 
   // Element Plus 组件映射
-  ELEMENT_COMPONENTS: {
-    elButton: {
-      type: 'el-button',
+  ELEMENT: {
+    Button: {
+      type: 'Button',
       name: 'Button',
       category: 'basic',
       icon: 'mouse-pointer',
@@ -99,11 +199,12 @@ export const COMPONENT_CONFIG = {
       defaultProps: {
         type: 'primary',
         size: 'default',
+        text: '按钮',
         disabled: false,
       },
     },
-    elInput: {
-      type: 'el-input',
+    Input: {
+      type: 'Input',
       name: 'Input',
       category: 'form',
       icon: 'type',
@@ -114,12 +215,34 @@ export const COMPONENT_CONFIG = {
         disabled: false,
       },
     },
+    Text: {
+      type: 'Text',
+      name: 'Text',
+      category: 'basic',
+      icon: 'text-fields',
+      description: '文本组件',
+      defaultProps: {
+        tag: 'p',
+        text: '这是一段文本',
+      },
+    },
+    Card: {
+      type: 'Card',
+      name: 'Card',
+      category: 'layout',
+      icon: 'credit-card',
+      description: '卡片组件',
+      defaultProps: {
+        title: '卡片标题',
+        content: '卡片内容',
+      },
+    },
   },
 
   // Ant Design Vue 组件映射
-  ANTD_COMPONENTS: {
-    aButton: {
-      type: 'a-button',
+  ANTD: {
+    Button: {
+      type: 'Button',
       name: 'Button',
       category: 'basic',
       icon: 'mouse-pointer',
@@ -127,11 +250,12 @@ export const COMPONENT_CONFIG = {
       defaultProps: {
         type: 'primary',
         size: 'middle',
+        text: '按钮',
         disabled: false,
       },
     },
-    aInput: {
-      type: 'a-input',
+    Input: {
+      type: 'Input',
       name: 'Input',
       category: 'form',
       icon: 'type',
@@ -139,6 +263,28 @@ export const COMPONENT_CONFIG = {
       defaultProps: {
         placeholder: '请输入内容',
         disabled: false,
+      },
+    },
+    Text: {
+      type: 'Text',
+      name: 'Text',
+      category: 'basic',
+      icon: 'text-fields',
+      description: '文本组件',
+      defaultProps: {
+        tag: 'p',
+        text: '这是一段文本',
+      },
+    },
+    Card: {
+      type: 'Card',
+      name: 'Card',
+      category: 'layout',
+      icon: 'credit-card',
+      description: '卡片组件',
+      defaultProps: {
+        title: '卡片标题',
+        content: '卡片内容',
       },
     },
   },

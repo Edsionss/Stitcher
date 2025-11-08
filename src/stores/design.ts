@@ -14,6 +14,7 @@ export const useDesignStore = defineStore('design', () => {
   const hasUnsavedChanges = ref(false);
   const currentTool = ref<'select' | 'marquee' | 'hand'>('select');
   const copyCutInProgress = ref(false);
+  const clipboard = ref<ComponentNode[]>([]);
 
   // 画布状态
   const canvas = ref({
@@ -475,6 +476,42 @@ export const useDesignStore = defineStore('design', () => {
     clearSelection();
   };
 
+  // ========== 快捷键支持方法 ==========
+  const copySelectedComponents = () => {
+    clipboard.value = [...selectedComponents.value];
+  };
+
+  const pasteComponents = () => {
+    if (clipboard.value.length === 0) return;
+
+    // 记录历史
+    addHistory({
+      id: generateHistoryId(),
+      timestamp: Date.now(),
+      type: 'batch-add',
+      components: [...clipboard.value],
+      description: `粘贴 ${clipboard.value.length} 个组件`,
+    });
+
+    // 清空选区
+    clearSelection();
+    hasUnsavedChanges.value = true;
+  };
+
+  const deleteSelectedComponents = () => {
+    deleteSelected();
+  };
+
+  const selectAllComponents = () => {
+    selectAll();
+  };
+
+  const saveProject = () => {
+    // 保存项目的逻辑
+    console.log('保存项目');
+    hasUnsavedChanges.value = false;
+  };
+
   // ========== 返回 ==========
   return {
     // 状态
@@ -514,6 +551,13 @@ export const useDesignStore = defineStore('design', () => {
     clearSelection,
     selectAll,
     deleteSelected,
+
+    // 快捷键支持方法
+    copySelectedComponents,
+    pasteComponents,
+    deleteSelectedComponents,
+    selectAllComponents,
+    saveProject,
 
     // 历史记录方法
     undo,

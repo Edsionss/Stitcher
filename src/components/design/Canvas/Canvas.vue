@@ -119,37 +119,37 @@
                 <!-- 实际组件渲染 -->
                 <component
                   :is="getComponentRenderer(element)"
-                  v-bind="element.props"
+                  :component="element"
                   class="actual-component"
-                />
-
-                <!-- 嵌套拖拽容器 -->
-                <div v-if="element.children && element.children.length > 0" class="nested-container">
-                  <Draggable
-                    v-model="element.children"
-                    :group="{ name: 'components' }"
-                    item-key="id"
-                    :sort="true"
-                    :animation="150"
-                    class="nested-draggable"
-                    @add="handleNestedAdd(element.id, $event)"
-                    @update="handleNestedUpdate(element.id, $event)"
-                  >
-                    <template #item="{ element: child }">
-                      <div
-                        class="canvas-item nested-item"
-                        :class="{ active: selectedIds.includes(child.id) }"
-                        :data-component-id="child.id"
-                        @click="selectComponent(child.id, $event)"
-                      >
-                        <component
-                          :is="getComponentRenderer(child)"
-                          v-bind="child.props"
-                        />
-                      </div>
-                    </template>
-                  </Draggable>
-                </div>
+                >
+                  <!-- 嵌套拖拽容器 -->
+                  <div v-if="element.children && element.children.length > 0" class="nested-container">
+                    <Draggable
+                      v-model="element.children"
+                      :group="{ name: 'components' }"
+                      item-key="id"
+                      :sort="true"
+                      :animation="150"
+                      class="nested-draggable"
+                      @add="handleNestedAdd(element.id, $event)"
+                      @update="handleNestedUpdate(element.id, $event)"
+                    >
+                      <template #item="{ element: child }">
+                        <div
+                          class="canvas-item nested-item"
+                          :class="{ active: selectedIds.includes(child.id) }"
+                          :data-component-id="child.id"
+                          @click="selectComponent(child.id, $event)"
+                        >
+                          <component
+                            :is="getComponentRenderer(child)"
+                            :component="child"
+                          />
+                        </div>
+                      </template>
+                    </Draggable>
+                  </div>
+                </component>
               </div>
 
               <!-- 空白占位符 -->
@@ -306,10 +306,11 @@ const deleteComponent = (componentId: string) => {
   designStore.removeComponent(componentId);
 };
 
+import BaseComponents from '@/components/base/BaseComponents.vue';
+
 const getComponentRenderer = (component: ComponentNode) => {
-  // 这里需要根据组件类型返回实际渲染器
-  // 目前返回默认的div，实际需要根据组件库映射
-  return 'div';
+  // 使用 BaseComponents 来渲染所有组件
+  return BaseComponents;
 };
 
 // 缩放控制

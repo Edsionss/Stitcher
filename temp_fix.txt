@@ -1,0 +1,34 @@
+const generateHTML = (): string => {
+  const html = generateHTMLString(componentTree.value.rootComponents);
+  // 使用 String.fromCharCode 避免字符串识别
+  const scriptTag = String.fromCharCode(60, 115, 99, 114, 105, 112, 116, 62); // <script>
+  const scriptEndTag = String.fromCharCode(60, 47, 115, 99, 114, 105, 112, 116, 62); // </script>
+
+  return [
+    '<!DOCTYPE html>',
+    '<html lang="zh-CN">',
+    '<head>',
+    '  <meta charset="UTF-8">',
+    '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+    '  <title>Generated Page</title>',
+    '  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>',
+    '</head>',
+    '<body>',
+    '  <div id="app">',
+    html,
+    '  </div>',
+    '',
+    '  ' + scriptTag,
+    '  const { createApp } = Vue;',
+    '',
+    '  createApp({',
+    '    data() {',
+    '      return {}',
+    '    },',
+    '    methods: {}',
+    '  }).mount(\'#app\');',
+    '  ' + scriptEndTag,
+    '</body>',
+    '</html>'
+  ].join('\n');
+};

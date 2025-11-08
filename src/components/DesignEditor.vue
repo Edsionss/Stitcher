@@ -25,6 +25,30 @@
       </div>
       <div class="flex items-center gap-2">
         <button
+          @click="openPreview"
+          class="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+          title="预览"
+        >
+          <span class="material-symbols-outlined">play_arrow</span>
+          预览
+        </button>
+        <button
+          @click="openExport"
+          class="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+          title="导出代码"
+        >
+          <span class="material-symbols-outlined">code</span>
+          导出
+        </button>
+        <button
+          @click="openShortcuts"
+          class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+          title="快捷键帮助"
+        >
+          <span class="material-symbols-outlined">help</span>
+        </button>
+        <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+        <button
           @click="toggleTheme"
           class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
           title="切换主题"
@@ -68,22 +92,52 @@
         <span>设备：{{ currentDeviceName }}</span>
       </div>
     </div>
+
+    <!-- 预览模态框 -->
+    <PreviewModal
+      :visible="showPreview"
+      @close="closePreview"
+    />
+
+    <!-- 代码导出模态框 -->
+    <CodeExportModal
+      :visible="showExport"
+      @close="closeExport"
+    />
+
+    <!-- 快捷键帮助模态框 -->
+    <KeyboardShortcutsHelp
+      :visible="showShortcuts"
+      @close="closeShortcuts"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useDesignStore } from '@/stores/design';
 import { useThemeStore } from '@/stores/theme';
 import { useDeviceStore } from '@/stores/device';
+import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts';
 import ComponentLibrary from './design/Sidebar/ComponentLibrary.vue';
 import Canvas from './design/Canvas/Canvas.vue';
 import PropertyPanel from './design/PropertyPanel/PropertyPanel.vue';
+import PreviewModal from './PreviewModal.vue';
+import CodeExportModal from './CodeExportModal.vue';
+import KeyboardShortcutsHelp from './KeyboardShortcutsHelp.vue';
 
 // ========== Store ==========
 const designStore = useDesignStore();
 const themeStore = useThemeStore();
 const deviceStore = useDeviceStore();
+
+// ========== 快捷键 ==========
+useKeyboardShortcuts();
+
+// ========== 状态 ==========
+const showPreview = ref(false);
+const showExport = ref(false);
+const showShortcuts = ref(false);
 
 // ========== 计算属性 ==========
 const canUndo = computed(() => designStore.canUndo);
@@ -107,6 +161,30 @@ const redo = () => {
 
 const toggleTheme = () => {
   themeStore.toggleTheme();
+};
+
+const openPreview = () => {
+  showPreview.value = true;
+};
+
+const closePreview = () => {
+  showPreview.value = false;
+};
+
+const openExport = () => {
+  showExport.value = true;
+};
+
+const closeExport = () => {
+  showExport.value = false;
+};
+
+const openShortcuts = () => {
+  showShortcuts.value = true;
+};
+
+const closeShortcuts = () => {
+  showShortcuts.value = false;
 };
 
 // ========== 初始化 ==========
