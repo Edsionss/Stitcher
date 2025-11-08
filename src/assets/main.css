@@ -1,6 +1,9 @@
 @import './base.css';
 @import "tailwindcss";
 
+/* 配置暗黑模式为基于类的选择器，而不是媒体查询 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 #app {
   width: 100%;
   height: 100vh;
