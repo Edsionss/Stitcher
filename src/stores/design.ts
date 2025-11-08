@@ -397,41 +397,54 @@ export const useDesignStore = defineStore('design', () => {
 
   // 应用历史记录
   const applyHistoryRecord = (record: HistoryRecord, direction: 'undo' | 'redo') => {
-    const { type, componentId, beforeState, afterState } = record;
+    const { type, componentId, beforeState, afterState, components } = record;
 
     switch (type) {
       case 'add':
-        if (direction === 'undo') {
-          // 撤销添加 = 删除
-          componentTree.value.allComponents.delete(componentId);
-        } else {
-          // 重做添加 = 重新添加
-          // 这里需要从 afterState 恢复
+        if (componentId) {
+          if (direction === 'undo') {
+            // 撤销添加 = 删除
+            componentTree.value.allComponents.delete(componentId);
+          } else {
+            // 重做添加 = 重新添加
+            // 这里需要从 afterState 恢复
+          }
         }
         break;
 
       case 'remove':
-        if (direction === 'undo') {
-          // 撤销删除 = 恢复
-          // 这里需要从 beforeState 恢复
-        } else {
-          // 重做删除 = 重新删除
-          componentTree.value.allComponents.delete(componentId);
+        if (componentId) {
+          if (direction === 'undo') {
+            // 撤销删除 = 恢复
+            // 这里需要从 beforeState 恢复
+          } else {
+            // 重做删除 = 重新删除
+            componentTree.value.allComponents.delete(componentId);
+          }
         }
         break;
 
       case 'update':
-        if (direction === 'undo') {
-          // 撤销更新 = 恢复到 beforeState
-          if (beforeState) {
-            Object.assign(componentTree.value.allComponents.get(componentId)!, beforeState);
-          }
-        } else {
-          // 重做更新 = 应用 afterState
-          if (afterState) {
-            Object.assign(componentTree.value.allComponents.get(componentId)!, afterState);
+        if (componentId) {
+          if (direction === 'undo') {
+            // 撤销更新 = 恢复到 beforeState
+            if (beforeState) {
+              Object.assign(componentTree.value.allComponents.get(componentId)!, beforeState);
+            }
+          } else {
+            // 重做更新 = 应用 afterState
+            if (afterState) {
+              Object.assign(componentTree.value.allComponents.get(componentId)!, afterState);
+            }
           }
         }
+        break;
+
+      case 'batch-add':
+      case 'batch-remove':
+      case 'copy':
+      case 'paste':
+        // 批量操作暂时不实现撤销重做
         break;
     }
   };

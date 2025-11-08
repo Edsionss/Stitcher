@@ -162,16 +162,15 @@
 
           <!-- 空画布提示 -->
           <template #footer v-if="canvasComponents.length === 0">
-            <div class="empty-canvas">
-              <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600">
-                add_circle
-              </span>
-              <h3 class="text-xl font-semibold text-slate-600 dark:text-slate-300 mt-4">
-                开始构建您的应用
-              </h3>
-              <p class="text-slate-500 dark:text-slate-400 mt-2">
-                从左侧组件库拖拽组件到画布
-              </p>
+            <div class="flex h-full w-full flex-col items-center justify-center gap-6 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-[#15202B]/50 p-6 min-h-[calc(100vh-10rem)]">
+              <div class="flex max-w-[480px] flex-col items-center gap-2">
+                <span class="material-symbols-outlined text-5xl text-primary">add_circle</span>
+                <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">开始构建您的应用</p>
+                <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal text-center">从左侧拖拽组件到画布开始</p>
+              </div>
+              <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-200 dark:hover:bg-slate-700">
+                <span class="truncate">浏览组件</span>
+              </button>
             </div>
           </template>
         </Draggable>

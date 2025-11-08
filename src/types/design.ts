@@ -24,8 +24,9 @@ export interface SelectionState {
 export interface HistoryRecord {
   id: string;
   timestamp: number;
-  type: 'add' | 'remove' | 'update' | 'move';
-  componentId: string;
+  type: 'add' | 'remove' | 'update' | 'move' | 'batch-add' | 'batch-remove' | 'copy' | 'paste';
+  componentId?: string;
+  components?: ComponentNode[];
   beforeState?: any;
   afterState?: any;
   description: string;

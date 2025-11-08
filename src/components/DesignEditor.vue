@@ -1,95 +1,152 @@
 <template>
-  <div class="design-editor h-screen w-screen flex flex-col bg-slate-50 dark:bg-slate-900">
+  <div class="design-editor h-screen w-screen flex flex-col font-display bg-background-light dark:bg-background-dark">
     <!-- 顶部工具栏 -->
-    <div class="top-toolbar h-14 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B]">
-      <div class="flex items-center gap-4">
-        <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Stitcher Designer</h1>
-        <div class="flex items-center gap-2">
-          <button
-            @click="undo"
-            :disabled="!canUndo"
-            class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="撤销"
-          >
-            <span class="material-symbols-outlined">undo</span>
+    <header class="top-toolbar h-16 flex items-center justify-between gap-2 flex-shrink-0 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B] px-4 py-2">
+      <!-- 左侧：撤销重做 -->
+      <div class="flex items-center gap-2 flex-1">
+        <button
+          @click="undo"
+          :disabled="!canUndo"
+          class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="撤销"
+        >
+          <span class="material-symbols-outlined">undo</span>
+        </button>
+        <button
+          @click="redo"
+          :disabled="!canRedo"
+          class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="重做"
+        >
+          <span class="material-symbols-outlined">redo</span>
+        </button>
+      </div>
+
+      <!-- 中间：设备切换 -->
+      <div class="flex-1 flex justify-center">
+        <div class="flex items-center gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5">
+          <button class="rounded-md bg-white dark:bg-slate-700 p-1.5 text-primary shadow-sm">
+            <span class="material-symbols-outlined">desktop_windows</span>
           </button>
-          <button
-            @click="redo"
-            :disabled="!canRedo"
-            class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="重做"
-          >
-            <span class="material-symbols-outlined">redo</span>
+          <button class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white">
+            <span class="material-symbols-outlined">tablet_mac</span>
+          </button>
+          <button class="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white">
+            <span class="material-symbols-outlined">smartphone</span>
           </button>
         </div>
       </div>
-      <div class="flex items-center gap-2">
+
+      <!-- 右侧：Save、Preview、Publish -->
+      <div class="flex items-center gap-2 flex-1 justify-end">
+        <button class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+          <span class="material-symbols-outlined mr-1.5 text-base">save</span>
+          <span>Save</span>
+        </button>
         <button
           @click="openPreview"
-          class="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
-          title="预览"
+          class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
         >
-          <span class="material-symbols-outlined">play_arrow</span>
-          预览
+          <span class="material-symbols-outlined mr-1.5 text-base">visibility</span>
+          <span>Preview</span>
         </button>
-        <button
-          @click="openExport"
-          class="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
-          title="导出代码"
-        >
-          <span class="material-symbols-outlined">code</span>
-          导出
+        <button class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-white hover:bg-primary/90">
+          <span class="material-symbols-outlined mr-1.5 text-base">publish</span>
+          <span>Publish</span>
         </button>
-        <button
-          @click="openShortcuts"
-          class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-          title="快捷键帮助"
-        >
-          <span class="material-symbols-outlined">help</span>
-        </button>
-        <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
-        <button
-          @click="toggleTheme"
-          class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-          title="切换主题"
-        >
-          <span class="material-symbols-outlined">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
-        </button>
-        <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
-        <span class="text-xs text-slate-500 dark:text-slate-400">
-          {{ currentDate }}
-        </span>
       </div>
-    </div>
+    </header>
 
     <!-- 主工作区 -->
-    <div class="main-workspace flex-1 flex overflow-hidden">
-      <!-- 左侧边栏：组件库 -->
-      <div class="sidebar-left w-64 flex-shrink-0">
-        <ComponentLibrary />
-      </div>
+    <div class="main-workspace flex-1 flex flex-row overflow-y-auto">
+      <!-- 左侧边栏：工作区信息和组件库 -->
+      <aside class="sidebar-left w-64 flex-shrink-0 flex-col justify-between border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B]">
+        <!-- 顶部工作区信息 -->
+        <div class="flex flex-col gap-4 p-4">
+          <div class="flex items-center gap-3">
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-primary/20 flex items-center justify-center">
+              <span class="material-symbols-outlined text-2xl text-primary">dashboard</span>
+            </div>
+            <div class="flex flex-col">
+              <h1 class="text-slate-900 dark:text-white text-base font-medium leading-normal">Workspace</h1>
+              <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">My New App</p>
+            </div>
+          </div>
+
+          <!-- 导航菜单 -->
+          <nav class="flex flex-col gap-2">
+            <a class="flex items-center gap-3 rounded-lg bg-primary/10 dark:bg-primary/20 px-3 py-2" href="#">
+              <span class="material-symbols-outlined text-primary text-2xl">widgets</span>
+              <p class="text-primary text-sm font-medium leading-normal">Components</p>
+            </a>
+            <a class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="#">
+              <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 text-2xl">layers</span>
+              <p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Pages</p>
+            </a>
+            <a class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="#">
+              <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 text-2xl">database</span>
+              <p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Data Sources</p>
+            </a>
+            <a class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="#">
+              <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 text-2xl">account_tree</span>
+              <p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Workflows</p>
+            </a>
+            <a class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="#">
+              <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 text-2xl">settings</span>
+              <p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Settings</p>
+            </a>
+          </nav>
+
+          <!-- 组件库 -->
+          <div class="flex-1 overflow-y-auto mt-2">
+            <ComponentLibrary />
+          </div>
+        </div>
+
+        <!-- 底部用户信息 -->
+        <div class="flex flex-col gap-1 p-4 border-t border-slate-200 dark:border-slate-800">
+          <a class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="#">
+            <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 text-2xl">help</span>
+            <p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Help</p>
+          </a>
+          <a class="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800" href="#">
+            <span class="material-symbols-outlined text-slate-700 dark:text-slate-300 text-2xl">account_circle</span>
+            <p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Profile</p>
+          </a>
+        </div>
+      </aside>
 
       <!-- 中间画布区域 -->
-      <div class="canvas-area flex-1 flex flex-col">
+      <main class="canvas-area flex-1 flex flex-col overflow-auto bg-background-light dark:bg-background-dark">
         <Canvas />
-      </div>
+      </main>
 
       <!-- 右侧边栏：属性面板 -->
-      <div class="sidebar-right w-80 flex-shrink-0">
-        <PropertyPanel />
-      </div>
+      <aside class="sidebar-right w-80 flex-shrink-0 flex-col border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B]">
+        <div class="flex h-full flex-col">
+          <!-- 标签页 -->
+          <div class="border-b border-slate-200 dark:border-slate-800 px-2">
+            <nav class="-mb-px flex justify-center">
+              <a class="flex-1 whitespace-nowrap border-b-2 border-primary px-1 py-3 text-center text-sm font-medium text-primary">属性</a>
+              <a class="flex-1 whitespace-nowrap border-b-2 border-transparent px-1 py-3 text-center text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-300">样式</a>
+              <a class="flex-1 whitespace-nowrap border-b-2 border-transparent px-1 py-3 text-center text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-300">事件</a>
+              <a class="flex-1 whitespace-nowrap border-b-2 border-transparent px-1 py-3 text-center text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-300">高级</a>
+            </nav>
+          </div>
+          <!-- 属性面板内容 -->
+          <div class="flex-1 overflow-y-auto p-4">
+            <PropertyPanel />
+          </div>
+        </div>
+      </aside>
     </div>
 
-    <!-- 底部状态栏 -->
-    <div class="bottom-status-bar h-8 flex items-center justify-between px-4 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B]">
+    <!-- 底部状态栏（简化版） -->
+    <div class="bottom-status-bar h-6 flex items-center justify-end px-4 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B]">
       <div class="flex items-center gap-4">
-        <span>组件数：{{ componentCount }}</span>
-        <span>已选择：{{ selectedCount }}</span>
-        <span>缩放：{{ Math.round(zoom * 100) }}%</span>
-      </div>
-      <div class="flex items-center gap-4">
-        <span v-if="isDragging">拖拽中...</span>
-        <span>设备：{{ currentDeviceName }}</span>
+        <span>组件: {{ componentCount }}</span>
+        <span>选择: {{ selectedCount }}</span>
+        <span>{{ currentDate }}</span>
       </div>
     </div>
 

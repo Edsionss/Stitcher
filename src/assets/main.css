@@ -1,35 +1,131 @@
-@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 基础样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+/* 拖拽相关样式 */
+.drag-ghost {
+  opacity: 0.5;
+  background: #f0f0f0;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+.dark .drag-ghost {
+  background: #2a2a2a;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+.drag-chosen {
+  border: 2px solid #2b8cee !important;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+.drag-drag {
+  transform: rotate(3deg);
+}
+
+/* 组件工具栏样式 */
+.component-toolbar {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  display: flex;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 4px;
+  border-radius: 6px;
+  z-index: 1000;
+}
+
+.dark .component-toolbar {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.toolbar-btn .material-symbols-outlined {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* 画布样式 */
+.canvas-container {
+  background: #f8fafc;
+}
+
+.dark .canvas-container {
+  background: #0f172a;
+}
+
+.canvas-components.empty {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.03) 10px,
+    rgba(0, 0, 0, 0.03) 20px
+  );
+}
+
+.canvas-item {
+  position: relative;
+  padding: 8px;
+  margin: 4px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.canvas-item.active,
+.canvas-item.selected {
+  border-color: #2b8cee;
+  background: rgba(43, 140, 238, 0.05);
+}
+
+.nested-container {
+  padding: 8px;
+  margin-top: 8px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 4px;
+  min-height: 40px;
+}
+
+.dark .nested-container {
+  border-color: #475569;
+}
+
+.nested-item {
+  margin: 2px 0;
 }

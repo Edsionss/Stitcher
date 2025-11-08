@@ -10,7 +10,10 @@
       "Bash(pnpm run type-check)",
       "Bash(src/components/CodeExportModal.vue:*)",
       "Bash(pnpm build:*)",
-      "Bash(npx vite build:*)"
+      "Bash(npx vite build:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm type-check:*)",
+      "Bash(pnpm dlx:*)"
     ],
     "deny": [],
     "ask": []
