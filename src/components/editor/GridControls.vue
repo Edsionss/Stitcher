@@ -1,6 +1,6 @@
 <template>
   <div class="grid-controls">
-    <!-- 工具栏切换按钮 -->
+    <!-- 工具栏切换按钮 - 固定位置 -->
     <button
       @click="toggleExpanded"
       class="toolbar-toggle flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#15202B] border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
@@ -10,10 +10,10 @@
       <span class="text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">设置</span>
     </button>
 
-    <!-- 展开的工具栏面板 -->
+    <!-- 展开的工具栏面板 - 向左展开，不移动按钮 -->
     <div
       v-show="isExpanded"
-      class="toolbar-panel mt-2 flex flex-col gap-2 bg-white dark:bg-[#15202B] border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-lg"
+      class="toolbar-panel absolute right-0 top-full mt-2 flex flex-col gap-2 bg-white dark:bg-[#15202B] border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-lg"
     >
       <!-- 网格设置 -->
       <div class="flex items-center gap-2">
@@ -126,5 +126,10 @@ const toggleExpanded = () => {
     top: 1.5rem;
     right: 1.5rem;
   }
+}
+
+.toolbar-panel {
+  min-width: 240px;
+  z-index: 30;
 }
 </style>

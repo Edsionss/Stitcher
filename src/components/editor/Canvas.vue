@@ -19,17 +19,24 @@
     <!-- 画布居中容器 -->
     <div class="flex items-center justify-center h-full w-full">
       <div
-        class="canvas-wrapper relative"
+        class="canvas-wrapper-outer relative"
         :style="{
-          width: canvasWidth + 'px',
-          height: canvasHeight + 'px',
-          transform: `scale(${zoomLevel})`,
-          transformOrigin: '0 0'
+          width: (canvasWidth * zoomLevel) + 'px',
+          height: (canvasHeight * zoomLevel) + 'px'
         }"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @mouseleave="handleMouseUp"
       >
+        <div
+          class="canvas-wrapper relative"
+          :style="{
+            width: canvasWidth + 'px',
+            height: canvasHeight + 'px',
+            transform: `scale(${zoomLevel})`,
+            transformOrigin: '0 0'
+          }"
+          @mousemove="handleMouseMove"
+          @mouseup="handleMouseUp"
+          @mouseleave="handleMouseUp"
+        >
       <!-- 网格背景 -->
       <div
         v-if="showGrid"
@@ -93,6 +100,7 @@
               top: line.type === 'horizontal' ? line.position + 'px' : '0'
             }"
           ></div>
+        </div>
         </div>
       </div>
       </div>
