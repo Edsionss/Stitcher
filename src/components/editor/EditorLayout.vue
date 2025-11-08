@@ -1,9 +1,18 @@
 <template>
   <div class="relative flex h-screen w-full flex-col overflow-hidden font-display bg-background-light dark:bg-background-dark">
     <!-- 头部工具栏 -->
-    <header class="flex flex-shrink-0 items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B] px-4 py-2">
-      <!-- 左侧：撤销/重做 -->
-      <div class="flex items-center gap-2 flex-1">
+    <header class="flex flex-shrink-0 items-center gap-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#15202B] px-4 py-2">
+      <!-- 左侧：Workspace -->
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 bg-gradient-to-br from-blue-400 to-purple-500"></div>
+        <div class="flex flex-col">
+          <h1 class="text-slate-900 dark:text-white text-base font-medium leading-normal">Workspace</h1>
+          <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">My New App</p>
+        </div>
+      </div>
+
+      <!-- 左侧：撤销/重做（向右移动一个Workspace的宽度） -->
+      <div class="flex items-center gap-2 flex-shrink-0 ml-64">
         <button
           @click="handleUndo"
           :disabled="!historyStore.canUndo"
@@ -40,7 +49,7 @@
       </div>
 
       <!-- 右侧：保存/预览/发布 -->
-      <div class="flex items-center gap-2 flex-1 justify-end">
+      <div class="flex items-center gap-2 flex-shrink-0 ml-auto">
         <div class="flex items-center gap-2">
           <!-- 主题切换按钮 -->
           <button
