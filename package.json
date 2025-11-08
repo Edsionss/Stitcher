@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
+    "@tailwindcss/postcss": "^4.1.17",
     "@tsconfig/node22": "^22.0.2",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^22.18.11",

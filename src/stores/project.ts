@@ -21,8 +21,11 @@ export const useProjectStore = defineStore('project', () => {
   // Actions
   function createProject(data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) {
     const project: Project = {
-      ...data,
       id: Date.now().toString(),
+      name: data.name,
+      description: data.description,
+      uiLibrary: data.uiLibrary,
+      pages: data.pages,
       createdAt: new Date(),
       updatedAt: new Date()
     }
@@ -34,15 +37,18 @@ export const useProjectStore = defineStore('project', () => {
   function updateProject(id: string, data: Partial<Project>) {
     const index = projects.value.findIndex(p => p.id === id)
     if (index > -1) {
-      projects.value[index] = {
+      const updated = {
         ...projects.value[index],
         ...data,
         updatedAt: new Date()
-      }
+      } as Project
+      projects.value[index] = updated
       if (currentProject.value?.id === id) {
-        currentProject.value = projects.value[index]
+        currentProject.value = updated
       }
+      return updated
     }
+    return undefined
   }
 
   function deleteProject(id: string) {
@@ -56,7 +62,7 @@ export const useProjectStore = defineStore('project', () => {
     currentProject.value = project
   }
 
-  function getProjectById(id: string) {
+  function getProjectById(id: string): Project | undefined {
     return projects.value.find(p => p.id === id)
   }
 

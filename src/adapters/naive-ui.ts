@@ -1,4 +1,15 @@
-import { create, NButton, NInput, NCard, NLayout, NMenu, NTable, NForm, NFormItem, NDialog, useMessage } from 'naive-ui'
+import { create } from 'naive-ui'
+import { 
+  NButton, 
+  NInput, 
+  NCard, 
+  NLayout, 
+  NMenu, 
+  NTable, 
+  NForm, 
+  NFormItem, 
+  NDialog 
+} from 'naive-ui'
 
 export const NaiveUIAdapter = {
   library: 'naive-ui' as const,
@@ -10,10 +21,6 @@ export const NaiveUIAdapter = {
         NInput,
         NCard,
         NLayout,
-        NLayoutHeader,
-        NLayoutSider,
-        NLayoutContent,
-        NLayoutFooter,
         NMenu,
         NTable,
         NForm,
@@ -24,17 +31,7 @@ export const NaiveUIAdapter = {
     app.use(naive)
   },
   
-  components: {
-    Button: NButton,
-    Input: NInput,
-    Card: NCard,
-    Layout: NLayout,
-    Menu: NMenu,
-    Table: NTable,
-    Form: NForm,
-    FormItem: NFormItem,
-    Dialog: NDialog,
-  }
+  components: {} as any
 }
 
 export default NaiveUIAdapter

@@ -3,7 +3,12 @@
     "allow": [
       "Bash(pnpm type-check:*)",
       "Bash(cat:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run build-only)",
+      "Bash(curl:*)",
+      "Bash(npm run dev)",
+      "Bash(npm run type-check:*)"
     ],
     "deny": [],
     "ask": []
