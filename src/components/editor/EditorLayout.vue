@@ -83,22 +83,22 @@
 
           <!-- 导航菜单 -->
           <nav class="flex flex-col gap-2">
-            <a
+            <button
               v-for="item in menuItems"
               :key="item.key"
-              href="#"
+              @click="activeMenuItem = item.key"
               :class="[
-                'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors',
+                'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors text-left w-full',
                 {
-                  'bg-primary/10 dark:bg-primary/20': item.active,
-                  'hover:bg-slate-100 dark:hover:bg-slate-800': !item.active
+                  'bg-primary/10 dark:bg-primary/20': activeMenuItem === item.key,
+                  'hover:bg-slate-100 dark:hover:bg-slate-800': activeMenuItem !== item.key
                 }
               ]"
             >
               <span
                 :class="[
                   'material-symbols-outlined text-2xl',
-                  { 'text-primary': item.active, 'text-slate-700 dark:text-slate-300': !item.active }
+                  { 'text-primary': activeMenuItem === item.key, 'text-slate-700 dark:text-slate-300': activeMenuItem !== item.key }
                 ]"
               >
                 {{ item.icon }}
@@ -106,13 +106,18 @@
               <p
                 :class="[
                   'text-sm font-medium leading-normal',
-                  { 'text-primary': item.active, 'text-slate-700 dark:text-slate-300': !item.active }
+                  { 'text-primary': activeMenuItem === item.key, 'text-slate-700 dark:text-slate-300': activeMenuItem !== item.key }
                 ]"
               >
                 {{ item.label }}
               </p>
-            </a>
+            </button>
           </nav>
+
+          <!-- 组件库面板 -->
+          <div v-if="activeMenuItem === 'components'" class="flex-1 mt-4 -mx-4 border-t border-slate-200 dark:border-slate-800">
+            <ComponentPanel />
+          </div>
         </div>
 
         <!-- 底部内容 -->
@@ -191,6 +196,7 @@ import { ref, onMounted } from 'vue'
 import { useCanvasStore } from '@/stores/canvas'
 import { usePropertyStore } from '@/stores/property'
 import { useHistoryStore } from '@/stores/history'
+import ComponentPanel from './ComponentPanel.vue'
 
 const canvasStore = useCanvasStore()
 const propertyStore = usePropertyStore()
@@ -208,12 +214,15 @@ const devices = [
 
 // 菜单项
 const menuItems = [
-  { key: 'components', label: 'Components', icon: 'widgets', active: true, href: '#' },
-  { key: 'pages', label: 'Pages', icon: 'layers', active: false, href: '#' },
-  { key: 'datasources', label: 'Data Sources', icon: 'database', active: false, href: '#' },
-  { key: 'workflows', label: 'Workflows', icon: 'account_tree', active: false, href: '#' },
-  { key: 'settings', label: 'Settings', icon: 'settings', active: false, href: '#' }
+  { key: 'components', label: 'Components', icon: 'widgets' },
+  { key: 'pages', label: 'Pages', icon: 'layers' },
+  { key: 'datasources', label: 'Data Sources', icon: 'database' },
+  { key: 'workflows', label: 'Workflows', icon: 'account_tree' },
+  { key: 'settings', label: 'Settings', icon: 'settings' }
 ]
+
+// 当前活动的菜单项
+const activeMenuItem = ref('components')
 
 // 底部菜单
 const bottomMenuItems = [
