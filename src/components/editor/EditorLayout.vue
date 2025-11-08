@@ -86,7 +86,7 @@
             <button
               v-for="item in menuItems"
               :key="item.key"
-              @click="activeMenuItem = item.key"
+              @click="toggleMenuItem(item.key)"
               :class="[
                 'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors text-left w-full',
                 {
@@ -111,11 +111,22 @@
               >
                 {{ item.label }}
               </p>
+              <!-- 展开/收起箭头（仅Components菜单显示） -->
+              <span
+                v-if="item.key === 'components'"
+                class="material-symbols-outlined text-sm ml-auto transition-transform"
+                :class="{ 'rotate-180': activeMenuItem === 'components' }"
+              >
+                expand_more
+              </span>
             </button>
           </nav>
 
-          <!-- 组件库面板 -->
-          <div v-if="activeMenuItem === 'components'" class="flex-1 mt-4 -mx-4 border-t border-slate-200 dark:border-slate-800">
+          <!-- 组件库面板（可展开/收起） -->
+          <div
+            v-if="activeMenuItem === 'components'"
+            class="flex-1 mt-4 -mx-4 border-t border-slate-200 dark:border-slate-800 overflow-hidden"
+          >
             <ComponentPanel />
           </div>
         </div>
@@ -222,7 +233,7 @@ const menuItems = [
 ]
 
 // 当前活动的菜单项
-const activeMenuItem = ref('components')
+const activeMenuItem = ref('')
 
 // 底部菜单
 const bottomMenuItems = [
@@ -273,6 +284,18 @@ onMounted(() => {
     html.classList.remove('dark')
   }
 })
+
+// 菜单项切换方法
+const toggleMenuItem = (key: string) => {
+  // 如果点击的是已激活的 Components，则收起
+  if (activeMenuItem.value === key && key === 'components') {
+    activeMenuItem.value = ''
+  }
+  // 否则激活该菜单项
+  else {
+    activeMenuItem.value = key
+  }
+}
 
 // 方法
 const setDevice = (type: 'desktop' | 'tablet' | 'mobile') => {
