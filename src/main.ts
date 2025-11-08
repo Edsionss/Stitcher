@@ -5,10 +5,15 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import uiManager from './adapters/ui-manager'
 
 const app = createApp(App)
+const pinia = createPinia()
 
-app.use(createPinia())
+// 初始化默认UI库 (Element Plus)
+uiManager.switchUI('element-plus', app)
+
+app.use(pinia)
 app.use(router)
 
 app.mount('#app')
