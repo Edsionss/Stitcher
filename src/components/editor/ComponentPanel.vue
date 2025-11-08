@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col">
     <!-- 搜索栏 -->
-    <div class="p-4 border-b border-slate-200 dark:border-slate-800">
+    <div class="p-3 border-b border-slate-200 dark:border-slate-700">
       <div class="relative">
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
           search
@@ -16,12 +16,12 @@
     </div>
 
     <!-- 分类标签 -->
-    <div class="px-2 py-2 border-b border-slate-200 dark:border-slate-800">
+    <div class="px-2 py-2 border-b border-slate-200 dark:border-slate-700">
       <div class="flex gap-1 overflow-x-auto">
         <button
           v-for="cat in categories"
           :key="cat.key"
-          @click="activeCategory = cat.key"
+          @click="activeCategory = cat.key as ComponentCategory"
           :class="[
             'flex-shrink-0 px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
             activeCategory === cat.key

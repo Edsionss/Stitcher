@@ -83,52 +83,53 @@
 
           <!-- 导航菜单 -->
           <nav class="flex flex-col gap-2">
-            <button
-              v-for="item in menuItems"
-              :key="item.key"
-              @click="toggleMenuItem(item.key)"
-              :class="[
-                'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors text-left w-full',
-                {
-                  'bg-primary/10 dark:bg-primary/20': activeMenuItem === item.key,
-                  'hover:bg-slate-100 dark:hover:bg-slate-800': activeMenuItem !== item.key
-                }
-              ]"
-            >
-              <span
+            <template v-for="item in menuItems" :key="item.key">
+              <!-- 菜单按钮 -->
+              <button
+                @click="toggleMenuItem(item.key)"
                 :class="[
-                  'material-symbols-outlined text-2xl',
-                  { 'text-primary': activeMenuItem === item.key, 'text-slate-700 dark:text-slate-300': activeMenuItem !== item.key }
+                  'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors text-left w-full',
+                  {
+                    'bg-primary/10 dark:bg-primary/20': activeMenuItem === item.key,
+                    'hover:bg-slate-100 dark:hover:bg-slate-800': activeMenuItem !== item.key
+                  }
                 ]"
               >
-                {{ item.icon }}
-              </span>
-              <p
-                :class="[
-                  'text-sm font-medium leading-normal',
-                  { 'text-primary': activeMenuItem === item.key, 'text-slate-700 dark:text-slate-300': activeMenuItem !== item.key }
-                ]"
-              >
-                {{ item.label }}
-              </p>
-              <!-- 展开/收起箭头（仅Components菜单显示） -->
-              <span
-                v-if="item.key === 'components'"
-                class="material-symbols-outlined text-sm ml-auto transition-transform"
-                :class="{ 'rotate-180': activeMenuItem === 'components' }"
-              >
-                expand_more
-              </span>
-            </button>
-          </nav>
+                <span
+                  :class="[
+                    'material-symbols-outlined text-2xl',
+                    { 'text-primary': activeMenuItem === item.key, 'text-slate-700 dark:text-slate-300': activeMenuItem !== item.key }
+                  ]"
+                >
+                  {{ item.icon }}
+                </span>
+                <p
+                  :class="[
+                    'text-sm font-medium leading-normal',
+                    { 'text-primary': activeMenuItem === item.key, 'text-slate-700 dark:text-slate-300': activeMenuItem !== item.key }
+                  ]"
+                >
+                  {{ item.label }}
+                </p>
+                <!-- 展开/收起箭头（仅Components菜单显示） -->
+                <span
+                  v-if="item.key === 'components'"
+                  class="material-symbols-outlined text-sm ml-auto transition-transform"
+                  :class="{ 'rotate-180': activeMenuItem === 'components' }"
+                >
+                  expand_more
+                </span>
+              </button>
 
-          <!-- 组件库面板（可展开/收起） -->
-          <div
-            v-if="activeMenuItem === 'components'"
-            class="flex-1 mt-4 -mx-4 border-t border-slate-200 dark:border-slate-800 overflow-hidden"
-          >
-            <ComponentPanel />
-          </div>
+              <!-- 组件库面板（紧贴着Components按钮下方） -->
+              <div
+                v-if="item.key === 'components' && activeMenuItem === 'components'"
+                class="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 overflow-hidden"
+              >
+                <ComponentPanel class="max-h-[calc(100vh-20rem)] overflow-y-auto" />
+              </div>
+            </template>
+          </nav>
         </div>
 
         <!-- 底部内容 -->
@@ -151,7 +152,10 @@
                 <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Start building your application</p>
                 <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal text-center">Drag and drop a component from the left panel to get started.</p>
               </div>
-              <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-200 dark:hover:bg-slate-700">
+              <button
+                @click="toggleMenuItem('components')"
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-200 dark:hover:bg-slate-700"
+              >
                 <span class="truncate">Browse Components</span>
               </button>
             </div>
