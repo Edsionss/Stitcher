@@ -1,8 +1,45 @@
 <template>
   <div class="base-components">
-    <!-- 文本组件 -->
+    <!-- shadcn-vue Button 组件 -->
+    <Button
+      v-if="component.type === 'Button'"
+      :variant="component.props.variant || 'default'"
+      :size="component.props.size || 'default'"
+      :disabled="component.props.disabled"
+      v-bind="component.props"
+    >
+      {{ component.props.text || '按钮' }}
+    </Button>
+
+    <!-- shadcn-vue Input 组件 -->
+    <Input
+      v-else-if="component.type === 'Input'"
+      :type="component.props.type || 'text'"
+      :placeholder="component.props.placeholder"
+      :disabled="component.props.disabled"
+      v-bind="component.props"
+    />
+
+    <!-- shadcn-vue Card 组件 -->
+    <Card
+      v-else-if="component.type === 'Card'"
+      v-bind="component.props"
+    >
+      <CardHeader v-if="component.props.title">
+        <CardTitle>{{ component.props.title }}</CardTitle>
+        <CardDescription v-if="component.props.description">
+          {{ component.props.description }}
+        </CardDescription>
+      </CardHeader>
+      <CardContent v-if="component.props.content">
+        {{ component.props.content }}
+      </CardContent>
+      <slot />
+    </Card>
+
+    <!-- 文本组件 (HTML元素) -->
     <component
-      v-if="component.type === 'Text'"
+      v-else-if="component.type === 'Text'"
       :is="getTextTag(component.props)"
       v-bind="getTextProps(component.props)"
       v-html="component.props.text || component.props.content || '文本'"
@@ -101,44 +138,6 @@
       </div>
     </div>
 
-    <!-- 按钮包装器 -->
-    <component
-      v-else-if="isButtonLike(component.type)"
-      :is="getButtonComponent(component)"
-      v-bind="adaptButtonProps(component)"
-      :style="component.style"
-      class="base-button-wrapper"
-    >
-      <span v-if="component.props.text">{{ component.props.text }}</span>
-      <slot v-else />
-    </component>
-
-    <!-- 输入框包装器 -->
-    <component
-      v-else-if="isInputLike(component.type)"
-      :is="getInputComponent(component)"
-      v-bind="adaptInputProps(component)"
-      :style="component.style"
-      class="base-input-wrapper"
-    />
-
-    <!-- 卡片包装器 -->
-    <component
-      v-else-if="isCardLike(component.type)"
-      :is="getCardComponent(component)"
-      v-bind="adaptCardProps(component)"
-      :style="component.style"
-      class="base-card-wrapper"
-    >
-      <div v-if="component.props.title" class="card-header">
-        <h3 class="card-title">{{ component.props.title }}</h3>
-      </div>
-      <div v-if="component.props.content" class="card-content">
-        {{ component.props.content }}
-      </div>
-      <slot />
-    </component>
-
     <!-- 未知组件 -->
     <div
       v-else
@@ -151,13 +150,7 @@
           extension
         </span>
         <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">
-          未实现组件
-        </p>
-        <p class="text-xs text-slate-500 dark:text-slate-500 mt-1">
-          类型: {{ component.type }}
-        </p>
-        <p class="text-xs text-slate-500 dark:text-slate-500">
-          库: {{ component.library }}
+          未实现组件: {{ component.type }}
         </p>
       </div>
     </div>
@@ -167,37 +160,22 @@
 <script setup lang="ts">
 import type { ComponentNode } from '@/types/component';
 
+// 导入 shadcn-vue 组件
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 interface Props {
   component: ComponentNode;
 }
 
 const props = defineProps<Props>();
 
-// ========== 组件类型判断 ==========
-const isButtonLike = (type: string): boolean => {
-  return ['Button', 'SubmitButton', 'ResetButton'].includes(type);
-};
-
-const isInputLike = (type: string): boolean => {
-  return ['Input', 'TextInput', 'Textarea', 'NumberInput'].includes(type);
-};
-
-const isCardLike = (type: string): boolean => {
-  return ['Card', 'InfoCard', 'TestimonialCard'].includes(type);
-};
-
 // ========== 文本组件 ==========
 const getTextTag = (props: any) => {
   const tagMap: Record<string, string> = {
-    h1: 'h1',
-    h2: 'h2',
-    h3: 'h3',
-    h4: 'h4',
-    h5: 'h5',
-    h6: 'h6',
-    p: 'p',
-    span: 'span',
-    div: 'div',
+    h1: 'h1', h2: 'h2', h3: 'h3', h4: 'h4', h5: 'h5', h6: 'h6',
+    p: 'p', span: 'span', div: 'div',
   };
   return tagMap[props.tag || 'p'] || 'p';
 };
@@ -218,17 +196,9 @@ const getTextClasses = (props: any) => {
 };
 
 // ========== 容器组件 ==========
-const getContainerTag = (props: any) => {
-  return props.tag || 'div';
-};
-
-const getRowTag = (props: any) => {
-  return props.tag || 'div';
-};
-
-const getColumnTag = (props: any) => {
-  return props.tag || 'div';
-};
+const getContainerTag = (props: any) => props.tag || 'div';
+const getRowTag = (props: any) => props.tag || 'div';
+const getColumnTag = (props: any) => props.tag || 'div';
 
 // ========== 分隔线组件 ==========
 const getDividerClasses = (props: any) => {
@@ -260,43 +230,6 @@ const getImageClasses = (props: any) => {
   if (props.circle) classes.push('rounded-full');
   if (props.shadow) classes.push('shadow');
   return classes;
-};
-
-// ========== 按钮组件 ==========
-const getButtonComponent = (component: ComponentNode) => {
-  // 暂时使用简单的 button 元素
-  return 'button';
-};
-
-const adaptButtonProps = (component: ComponentNode) => {
-  const props = { ...component.props };
-  return props;
-};
-
-// ========== 输入框组件 ==========
-const getInputComponent = (component: ComponentNode) => {
-  if (component.type === 'Textarea') return 'textarea';
-  return 'input';
-};
-
-const adaptInputProps = (component: ComponentNode) => {
-  const props = { ...component.props };
-  if (component.type === 'Textarea') {
-    props.as = 'textarea';
-  } else {
-    props.type = props.type || 'text';
-  }
-  return props;
-};
-
-// ========== 卡片组件 ==========
-const getCardComponent = (component: ComponentNode) => {
-  return 'div';
-};
-
-const adaptCardProps = (component: ComponentNode) => {
-  const props = { ...component.props };
-  return props;
 };
 
 // ========== 事件处理 ==========

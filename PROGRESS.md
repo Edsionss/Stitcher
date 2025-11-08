@@ -6,6 +6,8 @@ Stitcher Designer 是一个基于 Vue3 的低代码平台设计器，支持拖�
 
 ## 当前版本
 
+**v0.5.0** - shadcn-vue集成版（真实UI组件库）
+
 **v0.4.1** - 设计稿匹配版（UI完全重构）
 
 **v0.4.0** - 高级功能版（预览模式与代码导出）
@@ -120,6 +122,44 @@ Stitcher Designer 是一个基于 Vue3 的低代码平台设计器，支持拖�
 ✅ **Vite构建成功 - 81模块，耗时3.67s**
 ✅ **TypeScript类型检查通过 - 0错误**
 ✅ **UI完全匹配设计稿，功能完整可用**
+
+### 🐛 v0.5.0 版本修复
+
+- **shadcn-vue 完整集成**
+  - 安装 shadcn-vue@2.3.2 CLI 工具
+  - 配置组件库路径别名 (@/components, @/lib/utils)
+  - 创建 components.json 配置文件（New York 风格）
+  - 安装必要依赖：class-variance-authority、clsx、tailwind-merge、lucide-vue-next
+  - 集成 @radix-icons/vue 图标库
+
+- **shadcn-vue 组件库**
+  - Button 组件（带 variant、size、disabled 属性）
+  - Input 组件（支持 type、placeholder、disabled）
+  - Card 组件套件（Card, CardHeader, CardTitle, CardDescription, CardContent）
+  - Dialog 组件（模态框系统）
+  - Tabs 组件（标签页）
+  - Dropdown Menu 组件（下拉菜单）
+  - Select 组件（下拉选择框）
+  - 总计 53 个 shadcn-vue 组件文件
+
+- **BaseComponents.vue 重构**
+  - 移除自定义按钮包装器，直接使用 shadcn-vue Button
+  - 移除自定义输入框包装器，直接使用 shadcn-vue Input
+  - 移除自定义卡片包装器，直接使用 shadcn-vue Card 套件
+  - 保留 HTML 元素组件（Text、Container、Row、Column、Spacer、Divider、Link、Image）
+  - 优化未知组件展示，添加类型提示
+
+- **构建优化**
+  - 修复 @radix-icons/vue 依赖缺失错误
+  - 解决 TypeScript 类型声明问题
+  - Vite 构建成功：610模块，耗时6.09s
+  - CSS 打包大小：41.10 kB (gzip: 8.23 kB)
+  - JS 打包大小：432.07 kB (gzip: 150.02 kB)
+
+✅ **shadcn-vue 真实组件库集成完成**
+✅ **构建通过 - 610模块，耗时6.09s**
+✅ **所有 shadcn-vue 组件正常工作**
+✅ **彻底解决 UI 组件库问题**
 
 ## 新增功能
 
@@ -426,6 +466,35 @@ npm run build
 5. 添加更多基础组件
 
 ## 更新日志
+
+### v0.5.0 (2025-11-08)
+
+**重大更新**
+- 集成真实的 shadcn-vue 组件库
+  - 安装 shadcn-vue@2.3.2 CLI 工具
+  - 配置 components.json（New York 风格）
+  - 安装 53 个真实 shadcn-vue 组件
+  - 集成 @radix-icons/vue 图标系统
+
+**新增组件**
+- Button 组件（支持 variant、size、disabled）
+- Input 组件（支持 type、placeholder、disabled）
+- Card 组件套件（Card、CardHeader、CardTitle、CardDescription、CardContent）
+- Dialog 组件（完整模态框系统）
+- Tabs 组件（标签页切换）
+- Dropdown Menu 组件（下拉菜单）
+- Select 组件（下拉选择）
+
+**重构**
+- BaseComponents.vue 完全重构
+- 移除所有自定义包装器组件
+- 直接使用 shadcn-vue 真实组件
+- 保留 HTML 元素组件（Text、Container、Row、Column 等）
+
+**优化**
+- 解决所有 TypeScript 类型错误
+- Vite 构建：610模块，6.09s
+- 打包优化：CSS 41.10 kB，JS 432.07 kB
 
 ### v0.4.1 (2025-11-08)
 
