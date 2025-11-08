@@ -202,26 +202,13 @@
         </div>
       </aside>
 
-      <!-- 主工作区 -->
-      <main class="flex h-full flex-1 flex-col overflow-auto bg-background-light dark:bg-background-dark">
-        <div class="p-4 lg:p-6">
-          <div class="flex h-full w-full flex-col">
-            <!-- 空状态画布 -->
-            <div class="flex h-full flex-col items-center justify-center gap-6 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-[#15202B]/50 p-6 min-h-[calc(100vh-10rem)]">
-              <div class="flex max-w-[480px] flex-col items-center gap-2">
-                <span class="material-symbols-outlined text-5xl text-primary">add_circle</span>
-                <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Start building your application</p>
-                <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal text-center">Drag and drop a component from the left panel to get started.</p>
-              </div>
-              <button
-                @click="toggleMenuItem('components')"
-                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-200 dark:hover:bg-slate-700"
-              >
-                <span class="truncate">Browse Components</span>
-              </button>
-            </div>
-          </div>
-        </div>
+      <!-- 主工作区 - 画布区域 -->
+      <main class="flex h-full flex-1 flex-col overflow-hidden bg-background-light dark:bg-background-dark">
+        <Canvas
+          ref="canvasRef"
+          @browse-components="toggleMenuItem('components')"
+          @zoom-changed="handleZoomChanged"
+        />
       </main>
 
       <!-- 右侧边栏 -->
@@ -275,6 +262,7 @@ import { useHistoryStore } from '@/stores/history'
 import { useProjectPersistence } from '@/composables/useProjectPersistence'
 import { useEventSystem, useAutoStateListener } from '@/composables/useEventSystem'
 import ComponentPanel from './ComponentPanel.vue'
+import Canvas from './Canvas.vue'
 
 const canvasStore = useCanvasStore()
 const propertyStore = usePropertyStore()
@@ -288,6 +276,9 @@ const isDark = ref(false)
 const showProjectMenu = ref(false)
 const projectMenuRef = ref<HTMLElement | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
+
+// Canvas引用
+const canvasRef = ref<InstanceType<typeof Canvas> | null>(null)
 
 // 设备类型
 const devices = [
@@ -451,5 +442,12 @@ const handleClear = () => {
     persistence.clearAll()
     showProjectMenu.value = false
   }
+}
+
+// Canvas事件处理
+const handleZoomChanged = (zoom: number) => {
+  // 可以在这里添加缩放变化的处理逻辑
+  // 例如更新状态、触发事件等
+  console.log('Zoom changed to:', zoom)
 }
 </script>
