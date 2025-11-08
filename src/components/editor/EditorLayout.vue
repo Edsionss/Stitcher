@@ -42,6 +42,14 @@
       <!-- 右侧：保存/预览/发布 -->
       <div class="flex items-center gap-2 flex-1 justify-end">
         <div class="flex items-center gap-2">
+          <!-- 主题切换按钮 -->
+          <button
+            @click="toggleTheme"
+            class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+          >
+            <span class="material-symbols-outlined mr-1.5 text-base">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+            <span>{{ isDark ? '明亮' : '暗黑' }}</span>
+          </button>
           <button class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
             <span class="material-symbols-outlined mr-1.5 text-base">save</span>
             <span>Save</span>
@@ -179,6 +187,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useCanvasStore } from '@/stores/canvas'
 import { usePropertyStore } from '@/stores/property'
 import { useHistoryStore } from '@/stores/history'
@@ -186,6 +195,9 @@ import { useHistoryStore } from '@/stores/history'
 const canvasStore = useCanvasStore()
 const propertyStore = usePropertyStore()
 const historyStore = useHistoryStore()
+
+// 主题状态
+const isDark = ref(false)
 
 // 设备类型
 const devices = [
@@ -216,6 +228,42 @@ const panelTabs = [
   { key: 'events', label: '事件' },
   { key: 'advanced', label: '高级' }
 ] as const
+
+// 主题切换方法
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  updateTheme()
+}
+
+// 更新主题
+const updateTheme = () => {
+  const html = document.documentElement
+  if (isDark.value) {
+    html.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  } else {
+    html.classList.remove('dark')
+    localStorage.setItem('theme', 'light')
+  }
+}
+
+// 初始化主题
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme')
+  if (savedTheme) {
+    isDark.value = savedTheme === 'dark'
+  } else {
+    // 检查系统偏好
+    isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  // 立即应用主题，不使用 updateTheme 以避免重复设置
+  const html = document.documentElement
+  if (isDark.value) {
+    html.classList.add('dark')
+  } else {
+    html.classList.remove('dark')
+  }
+})
 
 // 方法
 const setDevice = (type: 'desktop' | 'tablet' | 'mobile') => {
