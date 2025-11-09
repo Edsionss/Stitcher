@@ -274,10 +274,11 @@
                   @delete="() => editorStore.clearSelection()"
                 />
 
-                <!-- 样式面板占位符 -->
-                <div v-else-if="activePanelTab === 'styles'" class="space-y-3">
-                  <p class="text-sm text-slate-500">样式面板开发中...</p>
-                </div>
+                <!-- 显示样式面板 -->
+                <StylePanel
+                  v-else-if="activePanelTab === 'styles'"
+                  :component="selectedComponent"
+                />
 
                 <!-- 事件面板占位符 -->
                 <div v-else-if="activePanelTab === 'events'" class="space-y-3">
@@ -317,6 +318,7 @@ import { useComponentTreeStore } from '@/stores/componentTree'
 import ComponentPanel from './ComponentPanel.vue'
 import Canvas from './Canvas.vue'
 import PropertyPanel from './PropertyPanel.vue'
+import StylePanel from './StylePanel.vue'
 
 const canvasStore = useCanvasStore()
 const propertyStore = usePropertyStore()
