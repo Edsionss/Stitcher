@@ -12,7 +12,12 @@
       "Bash(xargs:*)",
       "Bash(npm run build)",
       "*:*",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "Bash(pnpm dlx shadcn-vue@latest:*)",
+      "Bash(pnpm run type-check)",
+      "Bash(pnpm run lint)",
+      "Bash(pnpm run dev:*)",
+      "Bash(pnpm run build-only)"
     ],
     "deny": [],
     "ask": []
