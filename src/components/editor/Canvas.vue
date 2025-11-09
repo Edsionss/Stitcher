@@ -3,6 +3,8 @@
     ref="canvasContainerRef"
     class="canvas-container relative h-full w-full overflow-auto bg-background"
     @mousedown="handleMouseDown"
+    @keydown="handleKeyDown"
+    tabindex="0"
   >
     <!-- 网格控制面板 -->
     <GridControls />
@@ -79,8 +81,18 @@
         <div
           v-else
           class="components-layer relative h-full w-full"
+          @click="handleCanvasClick"
         >
-          <!-- 组件将在这里渲染 -->
+          <!-- 渲染组件 -->
+          <CanvasComponent
+            v-for="component in componentTreeStore.componentTree"
+            :key="component.id"
+            :component="component"
+            :is-selected="editorStore.selectedComponents.includes(component.id)"
+            @select="handleComponentSelect"
+            @move-start="handleComponentMoveStart"
+            @resize-start="handleComponentResizeStart"
+          />
         </div>
 
         <!-- 辅助线层 -->
@@ -111,8 +123,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useCanvasStore } from '@/stores/canvas'
+import { useComponentTreeStore } from '@/stores/componentTree'
+import { useEditorStore } from '@/stores/editor'
 import GridControls from './GridControls.vue'
 import ZoomControls from './ZoomControls.vue'
+import CanvasComponent from './CanvasComponent.vue'
 
 // 组件属性
 interface Props {
@@ -133,6 +148,8 @@ const emit = defineEmits<{
 
 // Store
 const canvasStore = useCanvasStore()
+const componentTreeStore = useComponentTreeStore()
+const editorStore = useEditorStore()
 
 // Refs
 const canvasContainerRef = ref<HTMLElement | null>(null)
@@ -143,12 +160,18 @@ const isPanning = ref(false)
 const lastPanPoint = ref({ x: 0, y: 0 })
 const guideLines = ref<Array<{ type: 'vertical' | 'horizontal'; position: number }>>([])
 
+// 组件移动和调整状态
+const isMovingComponent = ref(false)
+const isResizingComponent = ref(false)
+const movingComponentId = ref<string>('')
+const resizingComponentId = ref<string>('')
+const moveStartPos = ref({ x: 0, y: 0 })
 // 计算属性
 const showGrid = computed(() => canvasStore.showGrid)
 const gridSize = computed(() => canvasStore.gridSize)
 const snapToGrid = computed(() => canvasStore.snapToGrid)
 const device = computed(() => canvasStore.device)
-const hasComponents = ref(false) // TODO: 从组件树store获取
+const hasComponents = computed(() => componentTreeStore.hasComponents)
 
 const canvasWidth = computed(() => {
   // 根据设备类型调整画布宽度
@@ -206,8 +229,169 @@ const handleDragOver = (e: DragEvent) => {
 
 const handleDrop = (e: DragEvent) => {
   e.preventDefault()
-  // TODO: 处理组件放置
-  console.log('Component dropped on canvas')
+
+  // 获取拖拽数据
+  const dragData = e.dataTransfer?.getData('application/json')
+  if (!dragData) return
+
+  try {
+    const data = JSON.parse(dragData)
+    if (data.type !== 'component' || !data.component) return
+
+    // 获取放置位置
+    const canvasContent = (e.target as HTMLElement).closest('.canvas-content')
+    if (!canvasContent) return
+
+    const rect = canvasContent.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / zoomLevel.value
+    const y = (e.clientY - rect.top) / zoomLevel.value
+
+    // 如果启用了网格吸附，进行吸附计算
+    let finalX = x
+    let finalY = y
+    if (snapToGrid.value) {
+      finalX = Math.round(x / gridSize.value) * gridSize.value
+      finalY = Math.round(y / gridSize.value) * gridSize.value
+    }
+
+    // 创建新的组件节点
+    const newComponent: any = {
+      id: `component-${Date.now()}`,
+      type: data.component.type,
+      library: data.component.library,
+      name: data.component.name,
+      props: {
+        ...data.component.props?.reduce((acc: any, prop: any) => {
+          acc[prop.name] = prop.default || null
+          return acc
+        }, {})
+      },
+      styles: {
+        position: 'absolute',
+        left: `${finalX}px`,
+        top: `${finalY}px`,
+        width: '100px',
+        height: '50px'
+      }
+    }
+
+    // 添加到组件树
+    componentTreeStore.addComponent(newComponent)
+  } catch (error) {
+    console.error('Error parsing drop data:', error)
+  }
+}
+
+// 组件选择事件处理
+const handleCanvasClick = () => {
+  editorStore.clearSelection()
+}
+
+const handleComponentSelect = (id: string, multiSelect: boolean) => {
+  editorStore.selectComponent(id, multiSelect)
+}
+
+const handleComponentMoveStart = (e: MouseEvent) => {
+  if (!editorStore.selectedComponents.length) return
+
+  const componentId = editorStore.selectedComponents[0]
+  if (!componentId) return
+
+  isMovingComponent.value = true
+  movingComponentId.value = componentId
+  moveStartPos.value = { x: e.clientX, y: e.clientY }
+
+  // 添加移动事件监听
+  document.addEventListener('mousemove', handleComponentMove)
+  document.addEventListener('mouseup', handleComponentMoveEnd)
+}
+
+const handleComponentMove = (e: MouseEvent) => {
+  if (!isMovingComponent.value || !movingComponentId.value) return
+
+  const component = componentTreeStore.findComponentById(movingComponentId.value)
+  if (!component) return
+
+  const deltaX = (e.clientX - moveStartPos.value.x) / zoomLevel.value
+  const deltaY = (e.clientY - moveStartPos.value.y) / zoomLevel.value
+
+  const currentLeft = parseFloat(component.styles?.left?.replace('px', '') || '0')
+  const currentTop = parseFloat(component.styles?.top?.replace('px', '') || '0')
+
+  let newX = currentLeft + deltaX
+  let newY = currentTop + deltaY
+
+  // 网格吸附
+  if (snapToGrid.value) {
+    newX = Math.round(newX / gridSize.value) * gridSize.value
+    newY = Math.round(newY / gridSize.value) * gridSize.value
+  }
+
+  componentTreeStore.updateComponent(movingComponentId.value, {
+    styles: {
+      ...component.styles,
+      left: `${newX}px`,
+      top: `${newY}px`
+    }
+  })
+
+  moveStartPos.value = { x: e.clientX, y: e.clientY }
+}
+
+const handleComponentMoveEnd = () => {
+  isMovingComponent.value = false
+  movingComponentId.value = ''
+
+  document.removeEventListener('mousemove', handleComponentMove)
+  document.removeEventListener('mouseup', handleComponentMoveEnd)
+}
+
+const handleComponentResizeStart = (e: MouseEvent) => {
+  if (!editorStore.selectedComponents.length) return
+
+  const componentId = editorStore.selectedComponents[0]
+  if (!componentId) return
+
+  isResizingComponent.value = true
+  resizingComponentId.value = componentId
+  moveStartPos.value = { x: e.clientX, y: e.clientY }
+
+  document.addEventListener('mousemove', handleComponentResize)
+  document.addEventListener('mouseup', handleComponentResizeEnd)
+}
+
+const handleComponentResize = (e: MouseEvent) => {
+  if (!isResizingComponent.value || !resizingComponentId.value) return
+
+  const component = componentTreeStore.findComponentById(resizingComponentId.value)
+  if (!component) return
+
+  const deltaX = (e.clientX - moveStartPos.value.x) / zoomLevel.value
+  const deltaY = (e.clientY - moveStartPos.value.y) / zoomLevel.value
+
+  const currentWidth = parseFloat(component.styles?.width?.replace('px', '') || '100')
+  const currentHeight = parseFloat(component.styles?.height?.replace('px', '') || '50')
+
+  const newWidth = Math.max(50, currentWidth + deltaX)
+  const newHeight = Math.max(30, currentHeight + deltaY)
+
+  componentTreeStore.updateComponent(resizingComponentId.value, {
+    styles: {
+      ...component.styles,
+      width: `${newWidth}px`,
+      height: `${newHeight}px`
+    }
+  })
+
+  moveStartPos.value = { x: e.clientX, y: e.clientY }
+}
+
+const handleComponentResizeEnd = () => {
+  isResizingComponent.value = false
+  resizingComponentId.value = ''
+
+  document.removeEventListener('mousemove', handleComponentResize)
+  document.removeEventListener('mouseup', handleComponentResizeEnd)
 }
 
 // 公共方法
@@ -268,6 +452,22 @@ const toggleSnapToGrid = () => {
   canvasStore.toggleSnapToGrid()
 }
 
+// 删除选中的组件
+const deleteSelectedComponents = () => {
+  const toDelete = [...editorStore.selectedComponents]
+  toDelete.forEach(id => {
+    componentTreeStore.deleteComponent(id)
+  })
+  editorStore.clearSelection()
+}
+
+// 键盘事件处理
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Delete' && editorStore.selectedComponents.length > 0) {
+    deleteSelectedComponents()
+  }
+}
+
 // 暴露方法
 defineExpose({
   zoomIn,
@@ -286,10 +486,14 @@ onMounted(() => {
   setTimeout(() => {
     fitToScreen()
   }, 100)
+
+  // 绑定全局键盘事件
+  window.addEventListener('keydown', handleKeyDown)
 })
 
 onUnmounted(() => {
   // 清理
+  window.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 

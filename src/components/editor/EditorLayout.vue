@@ -240,13 +240,13 @@
               <button
                 v-for="tab in panelTabs"
                 :key="tab.key"
-                @click="setActiveTab(tab.key)"
+                @click="activePanelTab = tab.key"
                 :class="[
                   'flex-1 whitespace-nowrap border-b-2 px-1 py-3 text-center text-sm font-medium transition-colors',
                   {
-                    'border-primary text-primary': propertyStore.activeTab === tab.key,
+                    'border-primary text-primary': activePanelTab === tab.key,
                     'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-300':
-                      propertyStore.activeTab !== tab.key,
+                      activePanelTab !== tab.key,
                   },
                 ]"
               >
@@ -258,22 +258,36 @@
           <!-- 面板内容 -->
           <div class="flex-1 overflow-y-auto p-4">
             <div class="flex flex-col gap-4">
-              <template v-if="!propertyStore.selectedComponent">
+              <template v-if="!selectedComponent">
                 <p class="text-sm font-medium text-slate-900 dark:text-white">
-                  No Component Selected
+                  未选择组件
                 </p>
                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                  Select a component on the canvas to see its properties.
+                  在画布上选择一个组件以查看其属性。
                 </p>
               </template>
               <template v-else>
-                <!-- 组件属性内容将在这里显示 -->
-                <p class="text-sm font-medium text-slate-900 dark:text-white">
-                  {{ propertyStore.selectedComponent.name }}
-                </p>
-                <p class="text-sm text-slate-500 dark:text-slate-400">
-                  Component properties will be displayed here.
-                </p>
+                <!-- 显示属性面板 -->
+                <PropertyPanel
+                  v-if="activePanelTab === 'properties'"
+                  :component="selectedComponent"
+                  @delete="() => editorStore.clearSelection()"
+                />
+
+                <!-- 样式面板占位符 -->
+                <div v-else-if="activePanelTab === 'styles'" class="space-y-3">
+                  <p class="text-sm text-slate-500">样式面板开发中...</p>
+                </div>
+
+                <!-- 事件面板占位符 -->
+                <div v-else-if="activePanelTab === 'events'" class="space-y-3">
+                  <p class="text-sm text-slate-500">事件面板开发中...</p>
+                </div>
+
+                <!-- 高级面板占位符 -->
+                <div v-else-if="activePanelTab === 'advanced'" class="space-y-3">
+                  <p class="text-sm text-slate-500">高级面板开发中...</p>
+                </div>
               </template>
             </div>
           </div>
@@ -284,7 +298,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -298,12 +312,17 @@ import { usePropertyStore } from '@/stores/property'
 import { useHistoryStore } from '@/stores/history'
 import { useProjectPersistence } from '@/composables/useProjectPersistence'
 import { useEventSystem, useAutoStateListener } from '@/composables/useEventSystem'
+import { useEditorStore } from '@/stores/editor'
+import { useComponentTreeStore } from '@/stores/componentTree'
 import ComponentPanel from './ComponentPanel.vue'
 import Canvas from './Canvas.vue'
+import PropertyPanel from './PropertyPanel.vue'
 
 const canvasStore = useCanvasStore()
 const propertyStore = usePropertyStore()
 const historyStore = useHistoryStore()
+const editorStore = useEditorStore()
+const componentTreeStore = useComponentTreeStore()
 const persistence = useProjectPersistence()
 
 // 主题状态
@@ -350,6 +369,18 @@ const panelTabs = [
   { key: 'events', label: '事件' },
   { key: 'advanced', label: '高级' },
 ] as const
+
+// 当前活跃的面板标签
+const activePanelTab = ref<typeof panelTabs[number]['key']>('properties')
+
+// 计算属性：获取选中的组件
+const selectedComponent = computed(() => {
+  if (editorStore.selectedComponents.length === 0) return null
+  const componentId = editorStore.selectedComponents[0]
+  if (!componentId) return null
+  const component = componentTreeStore.findComponentById(componentId)
+  return component || null
+})
 
 // 主题切换方法
 const toggleTheme = () => {
