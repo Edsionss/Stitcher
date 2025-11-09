@@ -1,7 +1,7 @@
 <template>
   <div
     ref="canvasContainerRef"
-    class="canvas-container relative h-full w-full overflow-auto bg-background-light dark:bg-background-dark"
+    class="canvas-container relative h-full w-full overflow-auto bg-background"
     @mousedown="handleMouseDown"
   >
     <!-- 网格控制面板 -->

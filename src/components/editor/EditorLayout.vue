@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex h-screen w-full flex-col overflow-hidden font-display bg-background-light dark:bg-background-dark"
+    class="relative flex h-screen w-full flex-col overflow-hidden font-display bg-background"
   >
     <!-- 头部工具栏 -->
     <header
@@ -218,7 +218,7 @@
 
       <!-- 主工作区 - 画布区域 -->
       <main
-        class="flex h-full flex-1 flex-col overflow-hidden bg-background-light dark:bg-background-dark"
+        class="flex h-full flex-1 flex-col overflow-hidden bg-background"
       >
         <Canvas
           ref="canvasRef"

@@ -68,6 +68,12 @@ a,
 
 :root {
   --radius: 0.625rem;
+
+  /* === 系统语义化颜色 === */
+  --background-light: #f6f7f8;
+  --background-dark: #333333;
+
+  /* === shadcn 设计系统 === */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
