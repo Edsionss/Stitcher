@@ -128,7 +128,7 @@
             <span>Preview</span>
           </Button>
         </div>
-        <Button size="sm" class="gap-1.5 text-xs">
+        <Button variant="secondary" size="sm" class="gap-1.5 text-xs">
           <span class="material-symbols-outlined text-base">publish</span>
           <span>Publish</span>
         </Button>
