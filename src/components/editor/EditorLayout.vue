@@ -192,7 +192,7 @@
               <!-- 组件库面板（紧贴着Components按钮下方） -->
               <div
                 v-if="item.key === 'components' && activeMenuItem === 'components'"
-                class="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 overflow-hidden"
+                class="overflow-hidden"
               >
                 <ComponentPanel class="max-h-[calc(100vh-20rem)] overflow-y-auto" />
               </div>
