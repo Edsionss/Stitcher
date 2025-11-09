@@ -1,5 +1,5 @@
 <template>
-  <div class="style-panel flex flex-col gap-4 p-4 bg-white dark:bg-slate-900 rounded-lg shadow">
+  <div class="style-panel flex flex-col gap-4">
     <!-- 布局属性 -->
     <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
       <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
