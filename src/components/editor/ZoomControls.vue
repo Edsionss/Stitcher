@@ -1,5 +1,5 @@
 <template>
-  <div class="zoom-controls flex items-center gap-2 bg-white dark:bg-[#15202B] border border-slate-200 dark:border-slate-700 rounded-lg p-1 shadow-sm">
+  <div class="zoom-controls flex items-center gap-2 bg-white dark:bg-card border border-slate-200 dark:border-slate-700 rounded-lg p-1 shadow-sm">
     <!-- 缩小 -->
     <button
       @click="zoomOut"

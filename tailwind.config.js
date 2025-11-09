@@ -8,9 +8,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#2b8cee",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
         "background-light": "#f6f7f8",
-        "background-dark": "#101922",
+        "background-dark": "#333333",
       },
       fontFamily: {
         display: ["Inter", "sans-serif"]

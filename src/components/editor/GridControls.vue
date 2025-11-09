@@ -3,7 +3,7 @@
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <button
-          class="toolbar-toggle flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#15202B] border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200"
+          class="toolbar-toggle flex items-center gap-2 px-3 py-2 bg-white dark:bg-card border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200"
           title="网格和画布设置"
         >
           <span class="material-symbols-outlined text-lg">tune</span>

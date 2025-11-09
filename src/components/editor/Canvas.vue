@@ -56,7 +56,7 @@
         <!-- 空状态显示 -->
         <div
           v-if="!hasComponents"
-          class="flex h-full flex-col items-center justify-center gap-6 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-[#15202B]/50 p-6"
+          class="flex h-full flex-col items-center justify-center gap-6 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-card/50 p-6"
         >
           <div class="flex max-w-[480px] flex-col items-center gap-2">
             <span class="material-symbols-outlined text-5xl text-primary">add_circle</span>

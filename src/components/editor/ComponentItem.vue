@@ -1,6 +1,6 @@
 <template>
   <div
-    class="group relative flex flex-col p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#15202B] cursor-grab active:cursor-grabbing hover:border-primary dark:hover:border-primary hover:shadow-sm transition-all"
+    class="group relative flex flex-col p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-card cursor-grab active:cursor-grabbing hover:border-primary dark:hover:border-primary hover:shadow-sm transition-all"
     draggable="true"
     @dragstart="handleDragStart"
     @dragend="handleDragEnd"
