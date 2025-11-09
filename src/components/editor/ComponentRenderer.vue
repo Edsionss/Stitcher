@@ -85,13 +85,17 @@ const eventHandlers = computed(() => {
   return handlers
 })
 
-// 合并样式（组件样式 + 布局样式）
+// 合并样式（组件样式，不包括布局属性）
 const mergedStyles = computed(() => {
-  const styles: Record<string, any> = { ...props.node.styles }
+  const styles: Record<string, any> = {}
 
-  // 确保有position样式（绝对定位）
-  if (!styles.position) {
-    styles.position = 'absolute'
+  // 只应用非布局样式
+  if (props.node.styles) {
+    Object.entries(props.node.styles).forEach(([key, value]) => {
+      if (!['left', 'top', 'width', 'height', 'position', 'zIndex'].includes(key)) {
+        styles[key] = value
+      }
+    })
   }
 
   return styles

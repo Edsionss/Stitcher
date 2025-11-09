@@ -107,6 +107,132 @@
       </div>
     </div>
 
+    <!-- 组件属性 -->
+    <div v-if="editableProps.length > 0" class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+      <h4 class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+        属性
+      </h4>
+
+      <div class="space-y-3">
+        <div
+          v-for="prop in editableProps"
+          :key="prop.name"
+          class="space-y-1"
+        >
+          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
+            {{ prop.label }}
+            <span v-if="prop.required" class="text-red-500">*</span>
+          </label>
+
+          <!-- 文本输入 -->
+          <input
+            v-if="prop.type === 'string'"
+            :value="componentProps[prop.name]"
+            @input="handlePropChange(prop.name, ($event.target as HTMLInputElement).value)"
+            type="text"
+            :placeholder="prop.description || prop.label"
+            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
+          />
+
+          <!-- 数字输入 -->
+          <input
+            v-else-if="prop.type === 'number'"
+            :value="componentProps[prop.name]"
+            @input="handlePropChange(prop.name, Number(($event.target as HTMLInputElement).value))"
+            type="number"
+            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
+          />
+
+          <!-- 布尔值 -->
+          <label
+            v-else-if="prop.type === 'boolean'"
+            class="flex items-center gap-2 cursor-pointer"
+          >
+            <input
+              :checked="componentProps[prop.name]"
+              @change="handlePropChange(prop.name, ($event.target as HTMLInputElement).checked)"
+              type="checkbox"
+              class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+            />
+            <span class="text-xs text-slate-600 dark:text-slate-400">{{ prop.label }}</span>
+          </label>
+
+          <!-- 选择器 -->
+          <select
+            v-else-if="prop.type === 'select'"
+            :value="componentProps[prop.name]"
+            @change="handlePropChange(prop.name, ($event.target as HTMLSelectElement).value)"
+            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
+          >
+            <option
+              v-for="option in prop.options"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+
+          <!-- 颜色选择 -->
+          <div
+            v-else-if="prop.type === 'color'"
+            class="flex items-center gap-2"
+          >
+            <input
+              :value="componentProps[prop.name]"
+              @input="handlePropChange(prop.name, ($event.target as HTMLInputElement).value)"
+              type="color"
+              class="w-8 h-8 p-0 border border-slate-300 dark:border-slate-600 rounded cursor-pointer"
+            />
+            <input
+              :value="componentProps[prop.name]"
+              @input="handlePropChange(prop.name, ($event.target as HTMLInputElement).value)"
+              type="text"
+              class="flex-1 px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
+              placeholder="#000000"
+            />
+          </div>
+
+          <!-- 对象/数组 -->
+          <textarea
+            v-else-if="prop.type === 'object' || prop.type === 'array'"
+            :value="formatJson(componentProps[prop.name])"
+            @input="handleJsonChange(prop.name, ($event.target as HTMLTextAreaElement).value)"
+            type="text"
+            rows="3"
+            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950 font-mono"
+            placeholder="{ } 或 [ ]"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- 样式属性 -->
+    <div v-if="editableStyles.length > 0" class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+      <h4 class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+        样式
+      </h4>
+
+      <div class="space-y-2">
+        <div
+          v-for="style in editableStyles"
+          :key="style"
+          class="space-y-1"
+        >
+          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
+            {{ style }}
+          </label>
+          <input
+            :value="componentStyles[style] || ''"
+            @input="handleStyleChange(style, ($event.target as HTMLInputElement).value)"
+            type="text"
+            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
+            :placeholder="`${style}...`"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- 删除按钮 -->
     <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
       <button
@@ -120,10 +246,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useComponentTreeStore } from '@/stores/componentTree'
 import { useEditorStore } from '@/stores/editor'
-import type { ComponentNode } from '@/types/component'
+import { ALL_COMPONENTS } from '@/data/components'
+import type { ComponentNode, ComponentProp, ComponentStyle } from '@/types/component'
 
 interface Props {
   component: ComponentNode | null
@@ -175,6 +302,88 @@ const styles = computed({
     }
   }
 })
+
+// 计算属性：组件props
+const componentProps = computed(() => {
+  return props.component?.props || {}
+})
+
+// 计算属性：组件样式（除布局外）
+const componentStyles = computed(() => {
+  if (!props.component?.styles) return {}
+  const { left, top, width, height, position, zIndex, ...rest } = props.component.styles
+  return rest
+})
+
+// 计算属性：可编辑的props
+const editableProps = computed(() => {
+  if (!props.component) return []
+  const meta = ALL_COMPONENTS.find(c => c.type === props.component!.type)
+  return meta?.props || []
+})
+
+// 计算属性：可编辑的样式
+const editableStyles = computed(() => {
+  if (!props.component) return []
+  const meta = ALL_COMPONENTS.find(c => c.type === props.component!.type)
+  if (!meta?.styles) return []
+
+  const styleProperties: string[] = []
+  meta.styles.forEach((style: ComponentStyle) => {
+    styleProperties.push(...style.properties)
+  })
+
+  // 过滤掉已经在布局中显示的属性
+  return styleProperties.filter(s => !['left', 'top', 'width', 'height', 'zIndex'].includes(s))
+})
+
+// 处理prop变化
+function handlePropChange(name: string, value: any) {
+  if (props.component) {
+    componentTreeStore.updateComponent(props.component.id, {
+      props: {
+        ...props.component.props,
+        [name]: value
+      }
+    })
+  }
+}
+
+// 处理JSON prop变化
+function handleJsonChange(name: string, value: string) {
+  if (!value.trim()) {
+    handlePropChange(name, value)
+    return
+  }
+
+  try {
+    const parsed = JSON.parse(value)
+    handlePropChange(name, parsed)
+  } catch (e) {
+    // JSON解析错误，忽略
+  }
+}
+
+// 处理样式变化
+function handleStyleChange(name: string, value: string) {
+  if (props.component) {
+    componentTreeStore.updateComponent(props.component.id, {
+      styles: {
+        ...props.component.styles,
+        [name]: value
+      }
+    })
+  }
+}
+
+// 格式化JSON
+function formatJson(value: any): string {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'object') {
+    return JSON.stringify(value, null, 2)
+  }
+  return String(value)
+}
 
 // 删除组件
 const handleDelete = () => {

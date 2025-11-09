@@ -28,16 +28,21 @@
       {{ component.name }}
     </div>
 
-    <!-- 组件内容 -->
-    <div class="w-full h-full flex items-center justify-center text-xs text-slate-500 dark:text-slate-400 pointer-events-none">
-      {{ component.type }}
-    </div>
+    <!-- 组件内容 - 使用ComponentRenderer渲染真实组件 -->
+    <component-renderer
+      :node="component"
+      :selected="isSelected"
+      @select="handleRendererSelect"
+      @move-start="handleMouseDown"
+      @resize-start="handleResizeStart"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useEditorStore } from '@/stores/editor'
+import ComponentRenderer from './ComponentRenderer.vue'
 import type { ComponentNode } from '@/types/component'
 
 interface Props {
@@ -78,6 +83,12 @@ const handleComponentClick = (e: MouseEvent) => {
   const multiSelect = e.ctrlKey || e.metaKey
   emit('select', props.component.id, multiSelect)
   editorStore.selectComponent(props.component.id, multiSelect)
+}
+
+// 处理ComponentRenderer的select事件
+const handleRendererSelect = (id: string, multiSelect: boolean) => {
+  emit('select', id, multiSelect)
+  editorStore.selectComponent(id, multiSelect)
 }
 
 const handleMouseDown = (e: MouseEvent) => {
