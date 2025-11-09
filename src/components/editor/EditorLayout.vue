@@ -23,20 +23,22 @@
 
       <!-- 左侧：撤销/重做（向右移动一个Workspace的宽度） -->
       <div class="flex items-center gap-2 flex-shrink-0 ml-64">
-        <button
+        <Button
           @click="handleUndo"
           :disabled="!historyStore.canUndo"
-          class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          size="icon"
+          variant="ghost"
         >
           <span class="material-symbols-outlined">undo</span>
-        </button>
-        <button
+        </Button>
+        <Button
           @click="handleRedo"
           :disabled="!historyStore.canRedo"
-          class="p-2 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          size="icon"
+          variant="ghost"
         >
           <span class="material-symbols-outlined">redo</span>
-        </button>
+        </Button>
       </div>
 
       <!-- 中间：响应式切换 -->
@@ -63,25 +65,25 @@
       <div class="flex items-center gap-2 flex-shrink-0 ml-auto">
         <div class="flex items-center gap-2">
           <!-- 主题切换按钮 -->
-          <button
+          <Button
             @click="toggleTheme"
-            class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+            variant="ghost"
+            size="sm"
+            class="gap-1.5 text-xs"
           >
-            <span class="material-symbols-outlined mr-1.5 text-base">{{
+            <span class="material-symbols-outlined text-base">{{
               isDark ? 'light_mode' : 'dark_mode'
             }}</span>
             <span>{{ isDark ? '明亮' : '暗黑' }}</span>
-          </button>
+          </Button>
 
           <!-- 项目操作下拉菜单 -->
           <DropdownMenu>
             <DropdownMenuTrigger as-child>
-              <button
-                class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
-              >
-                <span class="material-symbols-outlined mr-1.5 text-base">folder</span>
+              <Button variant="ghost" size="sm" class="gap-1.5 text-xs">
+                <span class="material-symbols-outlined text-base">folder</span>
                 <span>项目</span>
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" class="w-48">
               <DropdownMenuItem @click="handleSave">
@@ -117,19 +119,19 @@
             class="hidden"
           />
 
-          <button
-            class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+          <Button
+            variant="ghost"
+            size="sm"
+            class="gap-1.5 text-xs"
           >
-            <span class="material-symbols-outlined mr-1.5 text-base">visibility</span>
+            <span class="material-symbols-outlined text-base">visibility</span>
             <span>Preview</span>
-          </button>
+          </Button>
         </div>
-        <button
-          class="flex h-7 cursor-pointer items-center justify-center overflow-hidden rounded-md bg-primary px-2.5 py-1.5 text-xs font-medium text-white hover:bg-primary/90"
-        >
-          <span class="material-symbols-outlined mr-1.5 text-base">publish</span>
+        <Button size="sm" class="gap-1.5 text-xs">
+          <span class="material-symbols-outlined text-base">publish</span>
           <span>Publish</span>
-        </button>
+        </Button>
       </div>
     </header>
 
@@ -290,6 +292,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 import { useCanvasStore } from '@/stores/canvas'
 import { usePropertyStore } from '@/stores/property'
 import { useHistoryStore } from '@/stores/history'
