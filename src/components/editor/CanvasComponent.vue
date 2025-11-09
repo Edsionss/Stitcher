@@ -107,11 +107,6 @@ defineExpose({
 <style scoped>
 .canvas-component-wrapper {
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.8);
   transition: all 0.2s ease;
-}
-
-.dark .canvas-component-wrapper {
-  background: rgba(30, 30, 30, 0.8);
 }
 </style>
