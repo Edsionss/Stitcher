@@ -55,44 +55,45 @@
         @drop="handleDrop"
         @dragover="handleDragOver"
       >
-        <!-- 空状态显示 -->
+        <!-- 画布层 - 始终存在，统一处理背景和边框 -->
         <div
-          v-if="!hasComponents"
-          class="flex h-full flex-col items-center justify-center gap-6 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-card/50 p-6"
-        >
-          <div class="flex max-w-[480px] flex-col items-center gap-2">
-            <span class="material-symbols-outlined text-5xl text-primary">add_circle</span>
-            <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-              Start building your application
-            </p>
-            <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal text-center">
-              Drag and drop a component from the left panel to get started.
-            </p>
-          </div>
-          <button
-            @click="$emit('browse-components')"
-            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-200 dark:hover:bg-slate-700"
-          >
-            <span class="truncate">Browse Components</span>
-          </button>
-        </div>
-
-        <!-- 组件渲染区域 -->
-        <div
-          v-else
-          class="components-layer relative h-full w-full"
+          class="components-layer relative h-full w-full rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-card/50 p-6"
           @click="handleCanvasClick"
         >
-          <!-- 渲染组件 -->
-          <CanvasComponent
-            v-for="component in componentTreeStore.componentTree"
-            :key="component.id"
-            :component="component"
-            :is-selected="editorStore.selectedComponents.includes(component.id)"
-            @select="handleComponentSelect"
-            @move-start="handleComponentMoveStart"
-            @resize-start="handleComponentResizeStart"
-          />
+          <!-- 空状态内容 - 仅在无组件时显示 -->
+          <div
+            v-if="!hasComponents"
+            class="flex h-full flex-col items-center justify-center gap-6"
+          >
+            <div class="flex max-w-[480px] flex-col items-center gap-2">
+              <span class="material-symbols-outlined text-5xl text-primary">add_circle</span>
+              <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
+                Start building your application
+              </p>
+              <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal text-center">
+                Drag and drop a component from the left panel to get started.
+              </p>
+            </div>
+            <button
+              @click="$emit('browse-components')"
+              class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-200 dark:hover:bg-slate-700"
+            >
+              <span class="truncate">Browse Components</span>
+            </button>
+          </div>
+
+          <!-- 组件渲染 - 有组件时显示 -->
+          <div v-else class="relative h-full w-full">
+            <CanvasComponent
+              v-for="component in componentTreeStore.componentTree"
+              :key="component.id"
+              :component="component"
+              :is-selected="editorStore.selectedComponents.includes(component.id)"
+              @select="handleComponentSelect"
+              @move-start="handleComponentMoveStart"
+              @resize-start="handleComponentResizeStart"
+            />
+          </div>
         </div>
 
         <!-- 辅助线层 -->
@@ -166,6 +167,7 @@ const isResizingComponent = ref(false)
 const movingComponentId = ref<string>('')
 const resizingComponentId = ref<string>('')
 const moveStartPos = ref({ x: 0, y: 0 })
+const componentStartPos = ref({ x: 0, y: 0 })
 // 计算属性
 const showGrid = computed(() => canvasStore.showGrid)
 const gridSize = computed(() => canvasStore.gridSize)
@@ -297,9 +299,16 @@ const handleComponentMoveStart = (e: MouseEvent) => {
   const componentId = editorStore.selectedComponents[0]
   if (!componentId) return
 
+  const component = componentTreeStore.findComponentById(componentId)
+  if (!component) return
+
   isMovingComponent.value = true
   movingComponentId.value = componentId
   moveStartPos.value = { x: e.clientX, y: e.clientY }
+  componentStartPos.value = {
+    x: parseFloat(component.styles?.left?.replace('px', '') || '0'),
+    y: parseFloat(component.styles?.top?.replace('px', '') || '0')
+  }
 
   // 添加移动事件监听
   document.addEventListener('mousemove', handleComponentMove)
@@ -312,14 +321,12 @@ const handleComponentMove = (e: MouseEvent) => {
   const component = componentTreeStore.findComponentById(movingComponentId.value)
   if (!component) return
 
+  // 使用绝对位置计算，避免增量误差累积
   const deltaX = (e.clientX - moveStartPos.value.x) / zoomLevel.value
   const deltaY = (e.clientY - moveStartPos.value.y) / zoomLevel.value
 
-  const currentLeft = parseFloat(component.styles?.left?.replace('px', '') || '0')
-  const currentTop = parseFloat(component.styles?.top?.replace('px', '') || '0')
-
-  let newX = currentLeft + deltaX
-  let newY = currentTop + deltaY
+  let newX = componentStartPos.value.x + deltaX
+  let newY = componentStartPos.value.y + deltaY
 
   // 网格吸附
   if (snapToGrid.value) {
@@ -334,13 +341,12 @@ const handleComponentMove = (e: MouseEvent) => {
       top: `${newY}px`
     }
   })
-
-  moveStartPos.value = { x: e.clientX, y: e.clientY }
 }
 
 const handleComponentMoveEnd = () => {
   isMovingComponent.value = false
   movingComponentId.value = ''
+  componentStartPos.value = { x: 0, y: 0 }
 
   document.removeEventListener('mousemove', handleComponentMove)
   document.removeEventListener('mouseup', handleComponentMoveEnd)
