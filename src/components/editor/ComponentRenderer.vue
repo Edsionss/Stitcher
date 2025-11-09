@@ -11,7 +11,7 @@
         :key="child.id"
         :node="child"
         :selected="isChildSelected(child.id)"
-        @select="$emit('select', $event)"
+        @select="(id, multi) => emit('select', id, multi)"
       />
     </template>
   </component>
@@ -66,12 +66,6 @@ const actualComponent = computed(() => {
 const componentProps = computed(() => {
   const defaultProps: Record<string, any> = {}
   const nodeProps = props.node.props || {}
-
-  // 从注册表获取默认props
-  if (renderer.value?.setup) {
-    // 对于有setup的组件，使用props参数
-    return nodeProps
-  }
 
   // 直接合并props
   return { ...defaultProps, ...nodeProps }
