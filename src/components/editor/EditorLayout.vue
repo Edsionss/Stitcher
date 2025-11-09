@@ -22,7 +22,7 @@
       </div>
 
       <!-- 左侧：撤销/重做（向右移动一个Workspace的宽度） -->
-      <div class="flex items-center gap-2 flex-shrink-0 ml-64">
+      <div class="flex items-center gap-2 flex-shrink-0 ml-5">
         <Button
           @click="handleUndo"
           :disabled="!historyStore.canUndo"
