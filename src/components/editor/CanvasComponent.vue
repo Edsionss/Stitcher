@@ -118,26 +118,30 @@ onMounted(() => {
         initialPos.y = parseFloat(props.component.styles?.top || '0')
       },
       move(event) {
-        const dx = event.pageX - event.x0
-        const dy = event.pageY - event.y0
+        // 考虑缩放比例计算实际拖拽距离
+        const dx = (event.pageX - event.x0) / props.scale
+        const dy = (event.pageY - event.y0) / props.scale
 
-        let currentX = initialPos.x + dx
-        let currentY = initialPos.y + dy
+        let targetX = initialPos.x + dx
+        let targetY = initialPos.y + dy
 
+        // 对拖拽后的位置进行吸附计算
         if (canvasStore.snapToGrid) {
-          currentX = Math.round(currentX / canvasStore.gridSize) * canvasStore.gridSize
-          currentY = Math.round(currentY / canvasStore.gridSize) * canvasStore.gridSize
+          targetX = Math.round(targetX / canvasStore.gridSize) * canvasStore.gridSize
+          targetY = Math.round(targetY / canvasStore.gridSize) * canvasStore.gridSize
         }
 
-        const transformX = currentX - initialPos.x
-        const transformY = currentY - initialPos.y
+        // transform 使用吸附后的位置与初始位置的差值
+        const transformX = targetX - initialPos.x
+        const transformY = targetY - initialPos.y
 
         dragTransform.value = `translate(${transformX}px, ${transformY}px)`
       },
       end(event) {
         dragTransform.value = ''
-        let newX = initialPos.x + (event.pageX - event.x0)
-        let newY = initialPos.y + (event.pageY - event.y0)
+        // 考虑缩放比例计算最终位置
+        let newX = initialPos.x + (event.pageX - event.x0) / props.scale
+        let newY = initialPos.y + (event.pageY - event.y0) / props.scale
 
         if (canvasStore.snapToGrid) {
           newX = Math.round(newX / canvasStore.gridSize) * canvasStore.gridSize
@@ -162,19 +166,24 @@ onMounted(() => {
         const { width, height } = event.rect
         let { left, top } = props.component.styles || { left: '0px', top: '0px' }
 
-        let x = parseFloat(left) + event.deltaRect.left
-        let y = parseFloat(top) + event.deltaRect.top
+        // 考虑缩放比例计算实际位移
+        let x = parseFloat(left) + event.deltaRect.left / props.scale
+        let y = parseFloat(top) + event.deltaRect.top / props.scale
 
         if (canvasStore.snapToGrid) {
           x = Math.round(x / canvasStore.gridSize) * canvasStore.gridSize
           y = Math.round(y / canvasStore.gridSize) * canvasStore.gridSize
         }
 
+        // 尺寸也需要考虑缩放比例
+        const scaledWidth = width / props.scale
+        const scaledHeight = height / props.scale
+
         componentTreeStore.updateComponent(props.component.id, {
           styles: {
             ...props.component.styles,
-            width: `${width}px`,
-            height: `${height}px`,
+            width: `${scaledWidth}px`,
+            height: `${scaledHeight}px`,
             left: `${x}px`,
             top: `${y}px`
           }

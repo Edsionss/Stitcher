@@ -87,6 +87,7 @@
               :key="component.id"
               :component="component"
               :is-selected="editorStore.selectedComponents.includes(component.id)"
+              :scale="zoomLevel"
               @select="handleComponentSelect"
             />
           </div>
