@@ -26,6 +26,25 @@
       />
     </div>
 
+    <!-- 组件交互 -->
+    <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+      <h4 class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+        交互
+      </h4>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input
+          :checked="component?.canResize !== false"
+          @change="handleResizeToggle(($event.target as HTMLInputElement).checked)"
+          type="checkbox"
+          class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+        />
+        <div class="flex flex-col">
+          <span class="text-xs text-slate-600 dark:text-slate-400">允许调整大小</span>
+          <span class="text-[10px] text-slate-400">启用后可以在画布上拖拽调整组件大小</span>
+        </div>
+      </label>
+    </div>
+
     <!-- 组件属性 -->
     <div v-if="editableProps.length > 0" class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
       <h4 class="text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -188,6 +207,16 @@ function handlePropChange(name: string, value: any) {
         ...props.component.props,
         [name]: value
       }
+    })
+  }
+}
+
+// 处理调整大小开关
+function handleResizeToggle(enabled: boolean) {
+  if (props.component) {
+    // 如果启用，设置为 true；如果关闭，设置为 false
+    componentTreeStore.updateComponent(props.component.id, {
+      canResize: enabled
     })
   }
 }

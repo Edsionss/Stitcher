@@ -81,6 +81,8 @@ export interface ComponentNode {
   events?: Record<string, Function>
   parentId?: string
   order?: number
+  /** 是否允许调整大小 */
+  canResize?: boolean
 }
 
 /**

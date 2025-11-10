@@ -200,11 +200,27 @@ onMounted(() => {
 
   watch(() => props.isSelected, (selected) => {
     if (selected) {
-      interaction.draggable(true).resizable(true)
+      interaction.draggable(true)
+      // 只有在 canResize 为 true 时才启用调整大小
+      if (props.component.canResize !== false) {
+        interaction.resizable(true)
+      }
     } else {
-      // interaction.draggable(false).resizable(false)
+      // 取消选择时禁用调整大小，拖拽功能保持启用
+      interaction.resizable(false)
     }
   }, { immediate: true })
+
+  // 监听 canResize 属性的变化
+  watch(() => props.component.canResize, (canResize) => {
+    if (props.isSelected) {
+      if (canResize !== false) {
+        interaction.resizable(true)
+      } else {
+        interaction.resizable(false)
+      }
+    }
+  })
 })
 
 defineExpose({

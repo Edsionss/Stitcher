@@ -359,7 +359,8 @@ onMounted(() => {
             top: `${finalY}px`,
             width: '100px',
             height: '50px'
-          }
+          },
+          canResize: false
         }
 
         componentTreeStore.addComponent(newComponent)
