@@ -8,6 +8,7 @@
       width: component.styles?.width || '100px',
       height: component.styles?.height || '50px',
       zIndex: component.styles?.zIndex || 1,
+      transform: dragTransform,
       ...componentStyles
     }"
     :class="{
@@ -71,6 +72,7 @@ const componentTreeStore = useComponentTreeStore()
 const canvasStore = useCanvasStore()
 
 const componentRef = ref<HTMLElement | null>(null)
+const dragTransform = ref('')
 
 const componentStyles = computed(() => {
   const styles: Record<string, any> = {}
@@ -99,6 +101,7 @@ onMounted(() => {
   if (!componentRef.value) return
 
   const interaction = interact(componentRef.value)
+  const initialPos = { x: 0, y: 0 }
 
   interaction.draggable({
     inertia: true,
@@ -110,9 +113,31 @@ onMounted(() => {
     ],
     autoScroll: true,
     listeners: {
+      start() {
+        initialPos.x = parseFloat(props.component.styles?.left || '0')
+        initialPos.y = parseFloat(props.component.styles?.top || '0')
+      },
       move(event) {
-        let newX = (parseFloat(props.component.styles?.left || '0')) + event.dx
-        let newY = (parseFloat(props.component.styles?.top || '0')) + event.dy
+        const dx = event.pageX - event.x0
+        const dy = event.pageY - event.y0
+
+        let currentX = initialPos.x + dx
+        let currentY = initialPos.y + dy
+
+        if (canvasStore.snapToGrid) {
+          currentX = Math.round(currentX / canvasStore.gridSize) * canvasStore.gridSize
+          currentY = Math.round(currentY / canvasStore.gridSize) * canvasStore.gridSize
+        }
+
+        const transformX = currentX - initialPos.x
+        const transformY = currentY - initialPos.y
+
+        dragTransform.value = `translate(${transformX}px, ${transformY}px)`
+      },
+      end(event) {
+        dragTransform.value = ''
+        let newX = initialPos.x + (event.pageX - event.x0)
+        let newY = initialPos.y + (event.pageY - event.y0)
 
         if (canvasStore.snapToGrid) {
           newX = Math.round(newX / canvasStore.gridSize) * canvasStore.gridSize
