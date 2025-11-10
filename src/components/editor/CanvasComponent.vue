@@ -1,7 +1,11 @@
 <template>
   <div
     ref="componentRef"
-    class="canvas-component-wrapper absolute cursor-move"
+    class="canvas-component-wrapper absolute flex flex-col items-center justify-center cursor-move"
+    :class="{
+      'ring-2 ring-primary': isSelected,
+      'ring-1 ring-transparent hover:ring-slate-300 dark:hover:ring-slate-600': !isSelected
+    }"
     :style="{
       left: component.styles?.left || '0px',
       top: component.styles?.top || '0px',
@@ -10,10 +14,6 @@
       zIndex: component.styles?.zIndex || 1,
       transform: dragTransform,
       ...componentStyles
-    }"
-    :class="{
-      'ring-2 ring-primary': isSelected,
-      'ring-1 ring-transparent hover:ring-slate-300 dark:hover:ring-slate-600': !isSelected
     }"
     @click.stop="handleComponentClick"
   >
@@ -35,11 +35,13 @@
     </div>
 
     <!-- 组件内容 - 使用ComponentRenderer渲染真实组件 -->
-    <component-renderer
-      :node="component"
-      :selected="isSelected"
-      @select="handleRendererSelect"
-    />
+    <div class="relative z-0">
+      <component-renderer
+        :node="component"
+        :selected="isSelected"
+        @select="handleRendererSelect"
+      />
+    </div>
   </div>
 </template>
 
