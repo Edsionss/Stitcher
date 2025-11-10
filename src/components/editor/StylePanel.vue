@@ -2,67 +2,63 @@
   <div class="style-panel flex flex-col gap-4">
     <!-- 布局属性 -->
     <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
-      <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
+      <h4 class="text-sm font-semibold">
         布局
       </h4>
 
       <div class="grid grid-cols-2 gap-3">
         <!-- Left -->
         <div class="space-y-1">
-          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
-            Left
-          </label>
+          <Label class="text-xs font-medium">Left</Label>
           <div class="flex items-center gap-1">
-            <input
-              v-model.number="styles.left"
-              type="number"
-              class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
-            />
+            <NumberField
+              v-model="styles.left"
+              :min="-9999"
+            >
+              <NumberFieldInput class="px-2 py-1" />
+            </NumberField>
             <span class="text-xs text-slate-500">px</span>
           </div>
         </div>
 
         <!-- Top -->
         <div class="space-y-1">
-          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
-            Top
-          </label>
+          <Label class="text-xs font-medium">Top</Label>
           <div class="flex items-center gap-1">
-            <input
-              v-model.number="styles.top"
-              type="number"
-              class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
-            />
+            <NumberField
+              v-model="styles.top"
+              :min="-9999"
+            >
+              <NumberFieldInput class="px-2 py-1" />
+            </NumberField>
             <span class="text-xs text-slate-500">px</span>
           </div>
         </div>
 
         <!-- Width -->
         <div class="space-y-1">
-          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
-            Width
-          </label>
+          <Label class="text-xs font-medium">Width</Label>
           <div class="flex items-center gap-1">
-            <input
-              v-model.number="styles.width"
-              type="number"
-              class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
-            />
+            <NumberField
+              v-model="styles.width"
+              :min="0"
+            >
+              <NumberFieldInput class="px-2 py-1" />
+            </NumberField>
             <span class="text-xs text-slate-500">px</span>
           </div>
         </div>
 
         <!-- Height -->
         <div class="space-y-1">
-          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
-            Height
-          </label>
+          <Label class="text-xs font-medium">Height</Label>
           <div class="flex items-center gap-1">
-            <input
-              v-model.number="styles.height"
-              type="number"
-              class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
-            />
+            <NumberField
+              v-model="styles.height"
+              :min="0"
+            >
+              <NumberFieldInput class="px-2 py-1" />
+            </NumberField>
             <span class="text-xs text-slate-500">px</span>
           </div>
         </div>
@@ -70,22 +66,19 @@
 
       <!-- Z-Index -->
       <div class="space-y-1">
-        <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
-          Z-Index
-        </label>
-        <input
-          v-model.number="styles.zIndex"
-          type="number"
-          class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
-        />
+        <Label class="text-xs font-medium">Z-Index</Label>
+        <NumberField
+          v-model="styles.zIndex"
+          :min="-9999"
+        >
+          <NumberFieldInput class="px-2 py-1" />
+        </NumberField>
       </div>
     </div>
 
     <!-- 样式属性 -->
     <div v-if="editableStyles.length > 0" class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
-      <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
-        样式
-      </h4>
+      <h4 class="text-sm font-semibold">样式</h4>
 
       <div class="space-y-2">
         <div
@@ -93,14 +86,12 @@
           :key="style"
           class="space-y-1"
         >
-          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
+          <Label class="text-xs font-medium">
             {{ style }}
-          </label>
-          <input
+          </Label>
+          <Input
             :value="componentStyles[style] || ''"
             @input="handleStyleChange(style, ($event.target as HTMLInputElement).value)"
-            type="text"
-            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
             :placeholder="`${style}...`"
           />
         </div>
@@ -114,6 +105,11 @@ import { computed } from 'vue'
 import { useComponentTreeStore } from '@/stores/componentTree'
 import { ALL_COMPONENTS } from '@/data/components'
 import type { ComponentNode, ComponentStyle } from '@/types/component'
+
+// shadcn-vue components
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { NumberField, NumberFieldInput } from '@/components/ui/number-field'
 
 interface Props {
   component: ComponentNode | null
@@ -189,17 +185,5 @@ function handleStyleChange(name: string, value: string) {
 <style scoped>
 .style-panel {
   /* 自定义样式 */
-}
-
-input[type='text'],
-input[type='number'] {
-  transition: border-color 0.2s;
-}
-
-input[type='text']:focus,
-input[type='number']:focus {
-  outline: none;
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
 }
 </style>
