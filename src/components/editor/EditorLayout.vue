@@ -4,7 +4,7 @@
   >
     <!-- 头部工具栏 -->
     <header
-      class="flex flex-shrink-0 items-center gap-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-card px-4 py-2"
+      class="toolbar flex flex-shrink-0 items-center gap-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-card px-4 py-2"
     >
       <!-- 左侧：Workspace -->
       <div class="flex items-center gap-3 flex-shrink-0">

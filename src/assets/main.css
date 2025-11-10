@@ -151,6 +151,26 @@ a,
   }
 }
 
+/* 默认全局禁用文本选择（除了输入框、文本域等） */
+*:not(input):not(textarea):not([contenteditable="true"]) {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+/* 工具栏区域允许文本选择 */
+.toolbar,
+.toolbar *,
+.toolbar * * {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
 /* 拖拽时禁用文本选择 */
 .no-text-selection {
   -webkit-user-select: none !important;
