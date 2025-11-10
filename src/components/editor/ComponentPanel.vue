@@ -68,7 +68,6 @@
                   v-for="component in category.components"
                   :key="component.id"
                   :component="component"
-                  @drag-start="handleDragStart"
                 />
               </div>
             </div>
@@ -172,33 +171,5 @@ function getLibraryIcon(library: UILibrary): string {
     'naive-ui': 'dashboard'
   }
   return iconMap[library]
-}
-
-// 处理拖拽开始
-function handleDragStart(component: ComponentMeta, event: DragEvent) {
-  if (!event.dataTransfer) return
-
-  const dragData = {
-    type: 'component',
-    component
-  }
-
-  event.dataTransfer.effectAllowed = 'copy'
-  event.dataTransfer.setData('application/json', JSON.stringify(dragData))
-
-  // 创建拖拽预览
-  const dragPreview = document.createElement('div')
-  dragPreview.className = 'flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700'
-  dragPreview.innerHTML = `
-    <span class="material-symbols-outlined text-primary">${component.icon}</span>
-    <span class="text-sm font-medium text-slate-900 dark:text-white">${component.name}</span>
-  `
-  document.body.appendChild(dragPreview)
-  event.dataTransfer.setDragImage(dragPreview, 0, 0)
-
-  // 清理预览元素
-  setTimeout(() => {
-    document.body.removeChild(dragPreview)
-  }, 0)
 }
 </script>

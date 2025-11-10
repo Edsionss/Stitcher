@@ -1,57 +1,63 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import type { ComponentMeta } from '@/types/component'
 
-export const useEditorStore = defineStore('editor', () => {
-  // State
-  const currentProject = ref<any>(null)
-  const currentPage = ref<any>(null)
-  const selectedComponents = ref<string[]>([])
-  const isDirty = ref(false)
+interface EditorState {
+  // Dragging state
+  isDragging: boolean
+  draggedComponent: ComponentMeta | null
+  draggedElement: HTMLElement | null
+  dragStartX: number
+  dragStartY: number
 
-  // Getters
-  const canUndo = ref(false)
-  const canRedo = ref(false)
+  // Selection state
+  selectedComponents: string[]
+}
 
-  // Actions
-  function setCurrentProject(project: any) {
-    currentProject.value = project
-    isDirty.value = false
-  }
+export const useEditorStore = defineStore('editor', {
+  state: (): EditorState => ({
+    // Dragging
+    isDragging: false,
+    draggedComponent: null,
+    draggedElement: null,
+    dragStartX: 0,
+    dragStartY: 0,
 
-  function setCurrentPage(page: any) {
-    currentPage.value = page
-    selectedComponents.value = []
-  }
+    // Selection
+    selectedComponents: []
+  }),
 
-  function selectComponent(id: string, multi = false) {
-    if (multi) {
-      const index = selectedComponents.value.indexOf(id)
-      if (index > -1) {
-        selectedComponents.value.splice(index, 1)
+  actions: {
+    // Dragging actions
+    startDragging(component: ComponentMeta, element: HTMLElement, startX: number, startY: number) {
+      this.isDragging = true
+      this.draggedComponent = component
+      this.draggedElement = element
+      this.dragStartX = startX
+      this.dragStartY = startY
+    },
+    stopDragging() {
+      this.isDragging = false
+      this.draggedComponent = null
+      this.draggedElement = null
+      this.dragStartX = 0
+      this.dragStartY = 0
+    },
+
+    // Selection actions
+    selectComponent(id: string, multiSelect = false) {
+      if (!multiSelect) {
+        this.selectedComponents = [id]
       } else {
-        selectedComponents.value.push(id)
+        const index = this.selectedComponents.indexOf(id)
+        if (index > -1) {
+          this.selectedComponents.splice(index, 1)
+        } else {
+          this.selectedComponents.push(id)
+        }
       }
-    } else {
-      selectedComponents.value = [id]
+    },
+    clearSelection() {
+      this.selectedComponents = []
     }
-  }
-
-  function clearSelection() {
-    selectedComponents.value = []
-  }
-
-  return {
-    // state
-    currentProject,
-    currentPage,
-    selectedComponents,
-    isDirty,
-    canUndo,
-    canRedo,
-    // actions
-    setCurrentProject,
-    setCurrentPage,
-    selectComponent,
-    clearSelection,
   }
 })

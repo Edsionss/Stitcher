@@ -52,8 +52,6 @@
       <!-- 画布内容区域 -->
       <div
         class="canvas-content relative h-full w-full"
-        @drop="handleDrop"
-        @dragover="handleDragOver"
       >
         <!-- 画布层 - 始终存在，统一处理背景和边框 -->
         <div
@@ -90,8 +88,6 @@
               :component="component"
               :is-selected="editorStore.selectedComponents.includes(component.id)"
               @select="handleComponentSelect"
-              @move-start="handleComponentMoveStart"
-              @resize-start="handleComponentResizeStart"
             />
           </div>
         </div>
@@ -123,6 +119,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import interact from 'interactjs'
 import { useCanvasStore } from '@/stores/canvas'
 import { useComponentTreeStore } from '@/stores/componentTree'
 import { useEditorStore } from '@/stores/editor'
@@ -161,13 +158,6 @@ const isPanning = ref(false)
 const lastPanPoint = ref({ x: 0, y: 0 })
 const guideLines = ref<Array<{ type: 'vertical' | 'horizontal'; position: number }>>([])
 
-// 组件移动和调整状态
-const isMovingComponent = ref(false)
-const isResizingComponent = ref(false)
-const movingComponentId = ref<string>('')
-const resizingComponentId = ref<string>('')
-const moveStartPos = ref({ x: 0, y: 0 })
-const componentStartPos = ref({ x: 0, y: 0 })
 // 计算属性
 const showGrid = computed(() => canvasStore.showGrid)
 const gridSize = computed(() => canvasStore.gridSize)
@@ -225,65 +215,6 @@ const handleMouseUp = () => {
   isPanning.value = false
 }
 
-const handleDragOver = (e: DragEvent) => {
-  e.preventDefault()
-}
-
-const handleDrop = (e: DragEvent) => {
-  e.preventDefault()
-
-  // 获取拖拽数据
-  const dragData = e.dataTransfer?.getData('application/json')
-  if (!dragData) return
-
-  try {
-    const data = JSON.parse(dragData)
-    if (data.type !== 'component' || !data.component) return
-
-    // 获取放置位置
-    const canvasContent = (e.target as HTMLElement).closest('.canvas-content')
-    if (!canvasContent) return
-
-    const rect = canvasContent.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / zoomLevel.value
-    const y = (e.clientY - rect.top) / zoomLevel.value
-
-    // 如果启用了网格吸附，进行吸附计算
-    let finalX = x
-    let finalY = y
-    if (snapToGrid.value) {
-      finalX = Math.round(x / gridSize.value) * gridSize.value
-      finalY = Math.round(y / gridSize.value) * gridSize.value
-    }
-
-    // 创建新的组件节点
-    const newComponent: any = {
-      id: `component-${Date.now()}`,
-      type: data.component.type,
-      library: data.component.library,
-      name: data.component.name,
-      props: {
-        ...data.component.props?.reduce((acc: any, prop: any) => {
-          acc[prop.name] = prop.default || null
-          return acc
-        }, {})
-      },
-      styles: {
-        position: 'absolute',
-        left: `${finalX}px`,
-        top: `${finalY}px`,
-        width: '100px',
-        height: '50px'
-      }
-    }
-
-    // 添加到组件树
-    componentTreeStore.addComponent(newComponent)
-  } catch (error) {
-    console.error('Error parsing drop data:', error)
-  }
-}
-
 // 组件选择事件处理
 const handleCanvasClick = () => {
   editorStore.clearSelection()
@@ -291,113 +222,6 @@ const handleCanvasClick = () => {
 
 const handleComponentSelect = (id: string, multiSelect: boolean) => {
   editorStore.selectComponent(id, multiSelect)
-}
-
-const handleComponentMoveStart = (e: MouseEvent) => {
-  if (!editorStore.selectedComponents.length) return
-
-  const componentId = editorStore.selectedComponents[0]
-  if (!componentId) return
-
-  const component = componentTreeStore.findComponentById(componentId)
-  if (!component) return
-
-  isMovingComponent.value = true
-  movingComponentId.value = componentId
-  moveStartPos.value = { x: e.clientX, y: e.clientY }
-  componentStartPos.value = {
-    x: parseFloat(component.styles?.left?.replace('px', '') || '0'),
-    y: parseFloat(component.styles?.top?.replace('px', '') || '0')
-  }
-
-  // 添加移动事件监听
-  document.addEventListener('mousemove', handleComponentMove)
-  document.addEventListener('mouseup', handleComponentMoveEnd)
-}
-
-const handleComponentMove = (e: MouseEvent) => {
-  if (!isMovingComponent.value || !movingComponentId.value) return
-
-  const component = componentTreeStore.findComponentById(movingComponentId.value)
-  if (!component) return
-
-  // 使用绝对位置计算，避免增量误差累积
-  const deltaX = (e.clientX - moveStartPos.value.x) / zoomLevel.value
-  const deltaY = (e.clientY - moveStartPos.value.y) / zoomLevel.value
-
-  let newX = componentStartPos.value.x + deltaX
-  let newY = componentStartPos.value.y + deltaY
-
-  // 网格吸附
-  if (snapToGrid.value) {
-    newX = Math.round(newX / gridSize.value) * gridSize.value
-    newY = Math.round(newY / gridSize.value) * gridSize.value
-  }
-
-  componentTreeStore.updateComponent(movingComponentId.value, {
-    styles: {
-      ...component.styles,
-      left: `${newX}px`,
-      top: `${newY}px`
-    }
-  })
-}
-
-const handleComponentMoveEnd = () => {
-  isMovingComponent.value = false
-  movingComponentId.value = ''
-  componentStartPos.value = { x: 0, y: 0 }
-
-  document.removeEventListener('mousemove', handleComponentMove)
-  document.removeEventListener('mouseup', handleComponentMoveEnd)
-}
-
-const handleComponentResizeStart = (e: MouseEvent) => {
-  if (!editorStore.selectedComponents.length) return
-
-  const componentId = editorStore.selectedComponents[0]
-  if (!componentId) return
-
-  isResizingComponent.value = true
-  resizingComponentId.value = componentId
-  moveStartPos.value = { x: e.clientX, y: e.clientY }
-
-  document.addEventListener('mousemove', handleComponentResize)
-  document.addEventListener('mouseup', handleComponentResizeEnd)
-}
-
-const handleComponentResize = (e: MouseEvent) => {
-  if (!isResizingComponent.value || !resizingComponentId.value) return
-
-  const component = componentTreeStore.findComponentById(resizingComponentId.value)
-  if (!component) return
-
-  const deltaX = (e.clientX - moveStartPos.value.x) / zoomLevel.value
-  const deltaY = (e.clientY - moveStartPos.value.y) / zoomLevel.value
-
-  const currentWidth = parseFloat(component.styles?.width?.replace('px', '') || '100')
-  const currentHeight = parseFloat(component.styles?.height?.replace('px', '') || '50')
-
-  const newWidth = Math.max(50, currentWidth + deltaX)
-  const newHeight = Math.max(30, currentHeight + deltaY)
-
-  componentTreeStore.updateComponent(resizingComponentId.value, {
-    styles: {
-      ...component.styles,
-      width: `${newWidth}px`,
-      height: `${newHeight}px`
-    }
-  })
-
-  moveStartPos.value = { x: e.clientX, y: e.clientY }
-}
-
-const handleComponentResizeEnd = () => {
-  isResizingComponent.value = false
-  resizingComponentId.value = ''
-
-  document.removeEventListener('mousemove', handleComponentResize)
-  document.removeEventListener('mouseup', handleComponentResizeEnd)
 }
 
 // 公共方法
@@ -495,11 +319,58 @@ onMounted(() => {
 
   // 绑定全局键盘事件
   window.addEventListener('keydown', handleKeyDown)
+
+  // 设置 interact.js dropzone
+  interact('.components-layer')
+    .dropzone({
+      accept: '.component-item',
+      ondrop(event) {
+        if (!editorStore.isDragging || !editorStore.draggedComponent) {
+          return
+        }
+
+        const canvasContent = event.target
+        const rect = canvasContent.getBoundingClientRect()
+        const x = (event.dragEvent.clientX - rect.left) / zoomLevel.value
+        const y = (event.dragEvent.clientY - rect.top) / zoomLevel.value
+
+        let finalX = x
+        let finalY = y
+        if (snapToGrid.value) {
+          finalX = Math.round(x / gridSize.value) * gridSize.value
+          finalY = Math.round(y / gridSize.value) * gridSize.value
+        }
+
+        const newComponent: any = {
+          id: `component-${Date.now()}`,
+          type: editorStore.draggedComponent.type,
+          library: editorStore.draggedComponent.library,
+          name: editorStore.draggedComponent.name,
+          props: {
+            ...editorStore.draggedComponent.props?.reduce((acc: any, prop: any) => {
+              acc[prop.name] = prop.default || null
+              return acc
+            }, {})
+          },
+          styles: {
+            position: 'absolute',
+            left: `${finalX}px`,
+            top: `${finalY}px`,
+            width: '100px',
+            height: '50px'
+          }
+        }
+
+        componentTreeStore.addComponent(newComponent)
+        editorStore.stopDragging() // 确保在放置后停止拖动状态
+      }
+    })
 })
 
 onUnmounted(() => {
   // 清理
   window.removeEventListener('keydown', handleKeyDown)
+  interact('.components-layer').unset()
 })
 </script>
 

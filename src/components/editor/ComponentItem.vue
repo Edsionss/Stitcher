@@ -1,9 +1,7 @@
 <template>
   <div
-    class="group relative flex flex-col p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-card cursor-grab active:cursor-grabbing hover:border-primary dark:hover:border-primary hover:shadow-sm transition-all"
-    draggable="true"
-    @dragstart="handleDragStart"
-    @dragend="handleDragEnd"
+    ref="componentEl"
+    class="group component-item relative flex flex-col p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-card cursor-grab active:cursor-grabbing hover:border-primary dark:hover:border-primary hover:shadow-sm transition-all"
   >
     <!-- 组件图标 -->
     <div class="flex items-center justify-center w-12 h-12 mx-auto mb-2 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-primary/10 transition-colors">
@@ -59,28 +57,61 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import interact from 'interactjs'
 import type { ComponentMeta, UILibrary } from '@/types/component'
+import { useEditorStore } from '@/stores/editor'
 
 interface Props {
   component: ComponentMeta
 }
 
 const props = defineProps<Props>()
+const editorStore = useEditorStore()
+const componentEl = ref<HTMLElement | null>(null)
 
-const emit = defineEmits<{
-  dragStart: [component: ComponentMeta, event: DragEvent]
-  dragEnd: [event: DragEvent]
-}>()
+onMounted(() => {
+  if (!componentEl.value) return
 
-// 处理拖拽开始
-function handleDragStart(event: DragEvent) {
-  emit('dragStart', props.component, event)
-}
+  let dragGhost: HTMLElement | null = null
 
-// 处理拖拽结束
-function handleDragEnd(event: DragEvent) {
-  emit('dragEnd', event)
-}
+  interact(componentEl.value)
+    .draggable({
+      inertia: true,
+      listeners: {
+        start (event) {
+          // Use the component data directly from props
+          editorStore.startDragging(props.component, event.target, event.x0, event.y0)
+
+          // Create the drag ghost
+          dragGhost = event.target.cloneNode(true) as HTMLElement
+          dragGhost.style.position = 'fixed'
+          // Center the ghost on the cursor
+          dragGhost.style.left = `${event.x0 - event.target.offsetWidth / 2}px`
+          dragGhost.style.top = `${event.y0 - event.target.offsetHeight / 2}px`
+          dragGhost.style.zIndex = '1000'
+          dragGhost.style.pointerEvents = 'none'
+          dragGhost.classList.add('opacity-75', 'shadow-xl')
+          document.body.appendChild(dragGhost)
+        },
+        move (event) {
+          if (dragGhost) {
+            // Move the ghost with the cursor
+            dragGhost.style.transform = `translate(${event.pageX - event.x0}px, ${event.pageY - event.y0}px)`
+          }
+        },
+        end () {
+          // Clean up
+          if (dragGhost) {
+            document.body.removeChild(dragGhost)
+            dragGhost = null
+          }
+          editorStore.stopDragging()
+        }
+      }
+    })
+})
+
 
 // 获取库标签样式
 function getLibraryClass(library: UILibrary): string {
