@@ -124,7 +124,7 @@
 | 生成代码UI库 | Element Plus | 最新 |
 | 生成代码UI库 | Ant Design Vue | 最新 |
 | 生成代码UI库 | Naive UI | 最新 |
-| 拖拽库 | vue-draggable-plus | 最新 |
+| 拖拽库 | interact.js | 最新 |
 | CSS框架 | Tailwind CSS | 最新 |
 | CSS预处理器 | SCSS | 最新 |
 | 代码编辑器 | Monaco Editor | 最新 |
