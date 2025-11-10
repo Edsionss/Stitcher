@@ -3,30 +3,20 @@
     <!-- 组件基本信息 -->
     <div class="space-y-2">
       <Label class="text-xs font-semibold">组件名称</Label>
-      <Input
-        v-model="componentName"
-        placeholder="Component name"
-      />
+      <Input v-model="componentName" placeholder="Component name" />
     </div>
 
     <!-- 组件类型 -->
     <div class="space-y-2">
       <Label class="text-xs font-semibold">类型</Label>
-      <Input
-        :value="component?.type"
-        readonly
-        class="cursor-not-allowed"
-      />
+      <Input :value="component?.type" readonly class="cursor-not-allowed" />
     </div>
 
     <!-- 组件交互 -->
     <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-700">
       <h4 class="text-xs font-semibold">交互</h4>
       <div class="flex items-center gap-2">
-        <Switch
-          :checked="component?.canResize !== false"
-          @update:checked="handleResizeToggle"
-        />
+        <Switch :checked="component?.canResize !== false" @update:checked="handleResizeToggle" />
         <div class="flex flex-col">
           <Label class="text-xs text-slate-600 dark:text-slate-400">允许调整大小</Label>
           <span class="text-[10px] text-slate-400">启用后可以在画布上拖拽调整组件大小</span>
@@ -35,15 +25,14 @@
     </div>
 
     <!-- 组件属性 -->
-    <div v-if="editableProps.length > 0" class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+    <div
+      v-if="editableProps.length > 0"
+      class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700"
+    >
       <h4 class="text-xs font-semibold">属性</h4>
 
       <div class="space-y-3">
-        <div
-          v-for="prop in editableProps"
-          :key="prop.name"
-          class="space-y-2"
-        >
+        <div v-for="prop in editableProps" :key="prop.name" class="space-y-2">
           <Label class="text-xs font-medium">
             {{ prop.label }}
             <span v-if="prop.required" class="text-red-500">*</span>
@@ -86,21 +75,14 @@
               <SelectValue :placeholder="prop.label" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem
-                v-for="option in prop.options"
-                :key="option.value"
-                :value="option.value"
-              >
+              <SelectItem v-for="option in prop.options" :key="option.value" :value="option.value">
                 {{ option.label }}
               </SelectItem>
             </SelectContent>
           </Select>
 
           <!-- 颜色选择 -->
-          <div
-            v-else-if="prop.type === 'color'"
-            class="flex items-center gap-2"
-          >
+          <div v-else-if="prop.type === 'color'" class="flex items-center gap-2">
             <input
               :value="componentProps[prop.name]"
               @input="handlePropChange(prop.name, ($event.target as HTMLInputElement).value)"
@@ -132,7 +114,7 @@
       <Button
         @click="handleDelete"
         variant="destructive"
-        class="w-full"
+        class="w-full bg-destructive text-destructive-foreground!"
       >
         删除组件
       </Button>
@@ -153,7 +135,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NumberField, NumberFieldInput } from '@/components/ui/number-field'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 
@@ -177,7 +165,7 @@ const componentName = computed({
     if (props.component) {
       componentTreeStore.updateComponent(props.component.id, { name: value })
     }
-  }
+  },
 })
 
 // 计算属性：组件props
@@ -188,7 +176,7 @@ const componentProps = computed(() => {
 // 计算属性：可编辑的props
 const editableProps = computed(() => {
   if (!props.component) return []
-  const meta = ALL_COMPONENTS.find(c => c.type === props.component!.type)
+  const meta = ALL_COMPONENTS.find((c) => c.type === props.component!.type)
   return meta?.props || []
 })
 
@@ -198,8 +186,8 @@ function handlePropChange(name: string, value: any) {
     componentTreeStore.updateComponent(props.component.id, {
       props: {
         ...props.component.props,
-        [name]: value
-      }
+        [name]: value,
+      },
     })
   }
 }
@@ -209,7 +197,7 @@ function handleResizeToggle(enabled: boolean | undefined) {
   if (props.component) {
     // 如果启用，设置为 true；如果关闭，设置为 false
     componentTreeStore.updateComponent(props.component.id, {
-      canResize: enabled ?? false
+      canResize: enabled ?? false,
     })
   }
 }
