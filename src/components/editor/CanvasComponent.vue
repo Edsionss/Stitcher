@@ -138,7 +138,6 @@ onMounted(() => {
         dragTransform.value = `translate(${transformX}px, ${transformY}px)`
       },
       end(event) {
-        dragTransform.value = ''
         // 考虑缩放比例计算最终位置
         let newX = initialPos.x + (event.pageX - event.x0) / props.scale
         let newY = initialPos.y + (event.pageY - event.y0) / props.scale
@@ -148,6 +147,7 @@ onMounted(() => {
           newY = Math.round(newY / canvasStore.gridSize) * canvasStore.gridSize
         }
 
+        // 先更新位置，然后再清空transform，避免位置跳跃
         componentTreeStore.updateComponent(props.component.id, {
           styles: {
             ...props.component.styles,
@@ -155,6 +155,9 @@ onMounted(() => {
             top: `${newY}px`
           }
         })
+
+        // 清空transform，应用新的left/top值
+        dragTransform.value = ''
       }
     }
   })
