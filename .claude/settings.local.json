@@ -22,7 +22,9 @@
       "Bash(git commit -m \"$(cat <<''EOF''\n✨ feat(editor): 实现核心编辑器功能 - 组件渲染、选择、移动和删除\n\n## 新增功能\n\n### 1. 组件树Store (src/stores/componentTree.ts)\n- 完整的组件树数据结构管理\n- 支持组件的增删改查操作\n- 扁平化组件列表获取\n- 组件层级管理\n\n### 2. 画布组件渲染系统 (Canvas.vue)\n- 从ComponentTree获取并渲染组件\n- 拖拽放置新组件到画布\n- 网格吸附功能集成\n- 组件树动态更新\n\n### 3. CanvasComponent组件 (src/components/editor/CanvasComponent.vue)\n- 单个组件的渲染和交互\n- 组件选择（单选/多选）\n- 拖拽移动功能\n- 拖拽调整大小功能\n- 实时样式更新\n\n### 4. 组件交互功能\n- 单击选择组件\n- 拖拽移动组件 (按住不放)\n- 调整大小 (右下角手柄)\n- Delete键删除组件\n- 点击空白处取消选择\n\n### 5. 属性面板 (PropertyPanel.vue)\n- 实时编辑组件名称\n- 布局属性编辑 (Left, Top, Width, Height)\n- Z-Index管理\n- 快速删除按钮\n- 双向数据绑定\n\n## 改进\n- 完善EditorLayout中的属性面板显示\n- 添加属性面板标签切换\n- 类型检查和错误处理\n- 动态事件监听和清理\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "WebFetch(domain:www.shadcn-vue.com)",
+      "Bash(rm -f:*)"
     ],
     "deny": [],
     "ask": []
