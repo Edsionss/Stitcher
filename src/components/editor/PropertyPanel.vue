@@ -2,114 +2,99 @@
   <div class="property-panel flex flex-col gap-4">
     <!-- 组件基本信息 -->
     <div class="space-y-2">
-      <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-        组件名称
-      </label>
-      <input
+      <Label class="text-xs font-semibold">组件名称</Label>
+      <Input
         v-model="componentName"
-        type="text"
-        class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
         placeholder="Component name"
       />
     </div>
 
     <!-- 组件类型 -->
     <div class="space-y-2">
-      <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-        类型
-      </label>
-      <input
+      <Label class="text-xs font-semibold">类型</Label>
+      <Input
         :value="component?.type"
-        type="text"
         readonly
-        class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-not-allowed"
+        class="cursor-not-allowed"
       />
     </div>
 
     <!-- 组件交互 -->
     <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-      <h4 class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-        交互
-      </h4>
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input
+      <h4 class="text-xs font-semibold">交互</h4>
+      <div class="flex items-center gap-2">
+        <Switch
           :checked="component?.canResize !== false"
-          @change="handleResizeToggle(($event.target as HTMLInputElement).checked)"
-          type="checkbox"
-          class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+          @update:checked="handleResizeToggle"
         />
         <div class="flex flex-col">
-          <span class="text-xs text-slate-600 dark:text-slate-400">允许调整大小</span>
+          <Label class="text-xs text-slate-600 dark:text-slate-400">允许调整大小</Label>
           <span class="text-[10px] text-slate-400">启用后可以在画布上拖拽调整组件大小</span>
         </div>
-      </label>
+      </div>
     </div>
 
     <!-- 组件属性 -->
     <div v-if="editableProps.length > 0" class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
-      <h4 class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-        属性
-      </h4>
+      <h4 class="text-xs font-semibold">属性</h4>
 
       <div class="space-y-3">
         <div
           v-for="prop in editableProps"
           :key="prop.name"
-          class="space-y-1"
+          class="space-y-2"
         >
-          <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
+          <Label class="text-xs font-medium">
             {{ prop.label }}
             <span v-if="prop.required" class="text-red-500">*</span>
-          </label>
+          </Label>
 
           <!-- 文本输入 -->
-          <input
+          <Input
             v-if="prop.type === 'string'"
             :value="componentProps[prop.name]"
             @input="handlePropChange(prop.name, ($event.target as HTMLInputElement).value)"
-            type="text"
             :placeholder="prop.description || prop.label"
-            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
           />
 
           <!-- 数字输入 -->
-          <input
+          <NumberField
             v-else-if="prop.type === 'number'"
-            :value="componentProps[prop.name]"
-            @input="handlePropChange(prop.name, Number(($event.target as HTMLInputElement).value))"
-            type="number"
-            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
-          />
+            :model-value="componentProps[prop.name]"
+            @update:model-value="handlePropChange(prop.name, $event)"
+            :min="0"
+          >
+            <NumberFieldInput />
+          </NumberField>
 
           <!-- 布尔值 -->
-          <label
-            v-else-if="prop.type === 'boolean'"
-            class="flex items-center gap-2 cursor-pointer"
-          >
-            <input
+          <div v-else-if="prop.type === 'boolean'" class="flex items-center gap-2">
+            <Checkbox
               :checked="componentProps[prop.name]"
-              @change="handlePropChange(prop.name, ($event.target as HTMLInputElement).checked)"
-              type="checkbox"
-              class="rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+              @update:checked="handlePropChange(prop.name, $event)"
             />
-            <span class="text-xs text-slate-600 dark:text-slate-400">{{ prop.label }}</span>
-          </label>
+            <Label class="text-xs">{{ prop.label }}</Label>
+          </div>
 
           <!-- 选择器 -->
-          <select
+          <Select
             v-else-if="prop.type === 'select'"
-            :value="componentProps[prop.name]"
-            @change="handlePropChange(prop.name, ($event.target as HTMLSelectElement).value)"
-            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
+            :model-value="componentProps[prop.name]"
+            @update:model-value="handlePropChange(prop.name, $event)"
           >
-            <option
-              v-for="option in prop.options"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </option>
-          </select>
+            <SelectTrigger>
+              <SelectValue :placeholder="prop.label" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="option in prop.options"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
 
           <!-- 颜色选择 -->
           <div
@@ -122,23 +107,20 @@
               type="color"
               class="w-8 h-8 p-0 border border-slate-300 dark:border-slate-600 rounded cursor-pointer"
             />
-            <input
+            <Input
               :value="componentProps[prop.name]"
               @input="handlePropChange(prop.name, ($event.target as HTMLInputElement).value)"
-              type="text"
-              class="flex-1 px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950"
               placeholder="#000000"
             />
           </div>
 
           <!-- 对象/数组 -->
-          <textarea
+          <Textarea
             v-else-if="prop.type === 'object' || prop.type === 'array'"
             :value="formatJson(componentProps[prop.name])"
             @input="handleJsonChange(prop.name, ($event.target as HTMLTextAreaElement).value)"
-            type="text"
             rows="3"
-            class="w-full px-2 py-1 text-xs border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-950 font-mono"
+            class="font-mono"
             placeholder="{ } 或 [ ]"
           />
         </div>
@@ -147,12 +129,13 @@
 
     <!-- 删除按钮 -->
     <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
-      <button
+      <Button
         @click="handleDelete"
-        class="w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 font-medium border border-red-200 dark:border-red-900 rounded-md hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+        variant="destructive"
+        class="w-full"
       >
         删除组件
-      </button>
+      </Button>
     </div>
   </div>
 </template>
@@ -163,6 +146,16 @@ import { useComponentTreeStore } from '@/stores/componentTree'
 import { useEditorStore } from '@/stores/editor'
 import { ALL_COMPONENTS } from '@/data/components'
 import type { ComponentNode, ComponentProp } from '@/types/component'
+
+// shadcn-vue components
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { NumberField, NumberFieldInput } from '@/components/ui/number-field'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 
 interface Props {
   component: ComponentNode | null
@@ -212,11 +205,11 @@ function handlePropChange(name: string, value: any) {
 }
 
 // 处理调整大小开关
-function handleResizeToggle(enabled: boolean) {
+function handleResizeToggle(enabled: boolean | undefined) {
   if (props.component) {
     // 如果启用，设置为 true；如果关闭，设置为 false
     componentTreeStore.updateComponent(props.component.id, {
-      canResize: enabled
+      canResize: enabled ?? false
     })
   }
 }
@@ -258,22 +251,5 @@ const handleDelete = () => {
 <style scoped>
 .property-panel {
   /* 自定义样式 */
-}
-
-input[type='text'],
-input[type='number'] {
-  transition: border-color 0.2s;
-}
-
-input[type='text']:focus,
-input[type='number']:focus {
-  outline: none;
-  border-color: hsl(var(--primary));
-  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
-}
-
-input[readonly] {
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 </style>
