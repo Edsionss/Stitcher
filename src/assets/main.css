@@ -150,3 +150,12 @@ a,
     @apply bg-background text-foreground;
   }
 }
+
+/* 拖拽时禁用文本选择 */
+.no-text-selection {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}

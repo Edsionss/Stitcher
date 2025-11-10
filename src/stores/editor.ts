@@ -34,6 +34,7 @@ export const useEditorStore = defineStore('editor', {
       this.draggedElement = element
       this.dragStartX = startX
       this.dragStartY = startY
+      this.disableTextSelection()
     },
     stopDragging() {
       this.isDragging = false
@@ -41,6 +42,15 @@ export const useEditorStore = defineStore('editor', {
       this.draggedElement = null
       this.dragStartX = 0
       this.dragStartY = 0
+      this.enableTextSelection()
+    },
+
+    // Text selection control
+    disableTextSelection() {
+      document.body.classList.add('no-text-selection')
+    },
+    enableTextSelection() {
+      document.body.classList.remove('no-text-selection')
     },
 
     // Selection actions
