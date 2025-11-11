@@ -4,7 +4,7 @@
     class="canvas-component-wrapper absolute flex flex-col items-center justify-center cursor-move"
     :class="{
       'ring-2 ring-primary': isSelected,
-      'border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-primary': !isSelected
+      'border-2 border-dashed border-primary hover:border-solid hover:border-primary': !isSelected
     }"
     :style="{
       left: component.styles?.left || '0px',
