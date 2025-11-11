@@ -79,7 +79,8 @@ a,
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(79.124% 0.11106 248.291);
+  /* --primary: oklch(0.205 0 0); */
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -152,7 +153,7 @@ a,
 }
 
 /* 默认全局禁用文本选择（除了输入框、文本域等） */
-*:not(input):not(textarea):not([contenteditable="true"]) {
+*:not(input):not(textarea):not([contenteditable='true']) {
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
