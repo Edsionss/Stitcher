@@ -24,7 +24,14 @@
       "Bash(git commit:*)",
       "Bash(git config:*)",
       "WebFetch(domain:www.shadcn-vue.com)",
-      "Bash(rm -f:*)"
+      "Bash(rm -f:*)",
+      "mcp__Chrome_DevTools_MCP__new_page",
+      "mcp__Chrome_DevTools_MCP__take_screenshot",
+      "mcp__Chrome_DevTools_MCP__take_snapshot",
+      "mcp__Chrome_DevTools_MCP__click",
+      "mcp__Chrome_DevTools_MCP__evaluate_script",
+      "Bash(git checkout:*)",
+      "mcp__Chrome_DevTools_MCP__navigate_page"
     ],
     "deny": [],
     "ask": []

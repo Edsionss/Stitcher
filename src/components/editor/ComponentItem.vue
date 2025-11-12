@@ -15,8 +15,8 @@
     </div>
 
     <!-- 组件名称和描述 -->
-    <div class="text-center">
-      <p class="text-sm font-medium text-slate-900 dark:text-white mb-1.5 truncate">
+    <div class="text-center flex items-center justify-center">
+      <p class="text-sm font-medium text-slate-900 dark:text-white truncate mb-0!">
         {{ component.name }}
       </p>
       <!-- Info icon with tooltip -->
