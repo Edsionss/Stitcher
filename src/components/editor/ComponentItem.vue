@@ -4,37 +4,28 @@
     class="group component-item relative flex flex-col p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-card cursor-grab active:cursor-grabbing hover:border-primary dark:hover:border-primary hover:shadow-sm transition-all"
   >
     <!-- 组件图标 -->
-    <div
-      class="flex items-center justify-center w-10 h-10 mx-auto mb-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-primary/10 transition-colors"
-    >
+    <div class="relative group/tooltip flex items-center justify-center w-10 h-10 mx-auto mb-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-primary/10 transition-colors">
       <span
         class="material-symbols-outlined text-xl text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors"
       >
         {{ component.icon }}
       </span>
+      <!-- Tooltip for component description -->
+      <div
+        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none shadow-lg"
+      >
+        {{ component.description || '暂无描述' }}
+        <div
+          class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-700"
+        ></div>
+      </div>
     </div>
 
-    <!-- 组件名称和描述 -->
-    <div class="text-center flex items-center justify-center">
-      <p class="text-sm font-medium text-slate-900 dark:text-white truncate mb-0!">
+    <!-- 组件名称 -->
+    <div class="text-center">
+      <p class="text-sm font-medium text-slate-900 dark:text-white truncate">
         {{ component.name }}
       </p>
-      <!-- Info icon with tooltip -->
-      <div class="relative group/tooltip flex justify-center">
-        <span
-          class="material-symbols-outlined text-sm text-slate-400 dark:text-slate-500 cursor-help hover:text-slate-600 dark:hover:text-slate-300"
-        >
-          info
-        </span>
-        <div
-          class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none shadow-lg"
-        >
-          {{ component.description || '暂无描述' }}
-          <div
-            class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-900 dark:border-t-slate-700"
-          ></div>
-        </div>
-      </div>
     </div>
 
     <!-- 标签 -->
